@@ -1,0 +1,32 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Optional npm cache/debug files
+yarn-debug.log*
+yarn-error.log*
+
+# Editor settings (VS Code, etc.)
+.vscode/
+
+# OS system files
+.DS_Store
+Thumbs.db
+
+# Build output (optional if you have builds)
+dist/
+build/
+
+# Database dumps (if any)
+*.sql
+*.sqlite
+
+# Coverage reports (if using testing)
+coverage/
