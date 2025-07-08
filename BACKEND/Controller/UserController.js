@@ -2,11 +2,21 @@ import User from "../models/UserModel.js";
 export const CreateUser = async (req, res) => {
     try {
       const newUser = req.body;
-  
-      if (!newUser.name || !newUser.email || !newUser.password) {
-        return res.status(400).json({ message: 'Name, email, and password are required.' });
+      const validRoles = ['client', 'freelancer'];
+
+      if (!newUser.name || !newUser.email || !newUser.password || !newUser.role) {
+        return res.status(400).json({ message: 'Name, email, password and role are required.' });
       }
-  
+      if (!validRoles.includes(newUser.role)) 
+      {
+     throw new Error('Invalid role , must be client or freelancer');
+      }
+      if(newUser.role == 'freelancer') 
+       if(!newUser.specialty || !newUser.price_per_hour)
+        return res.status(400).json({message: 'Speciality and price_per_hour are required for a freelancer '})
+      if(newUser.role == 'client')
+       if(newUser.specialty || newUser.price_per_hour)
+        return res.status(400).json({message: 'Clients should not provide specialty or price_per_hour'})
       const result = await User.create(newUser);
       res.status(201).json({ message: 'User created', userId: result.insertId });
   

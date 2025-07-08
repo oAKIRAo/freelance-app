@@ -1,16 +1,36 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from "../models/UserModel.js";
-
+import { emailRegex, passwordRegex } from '../utils/validation.js';
 // Register a new user
 export const RegisterUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password , role , specialty , price_per_hour} = req.body;
+    const validRoles = ['client', 'freelancer'];
 
-    if (!name || !email || !password)
-      return res.status(400).json({ message: 'Name, email, and password are required' });
+    if (!name || !email || !password || !role)
+      return res.status(400).json({ message: 'Name, email,password, and role are required' });
 
-    await User.register({ name, email, password });
+    if (!validRoles.includes(role)) 
+      {
+     throw new Error('Invalid role , meust be client or freelancer');
+      }
+//Verification d'email
+    if (!emailRegex.test(email))
+      return res.status(400).json({ message: 'Invalid email format' });
+//Respect des criteres du mdp 
+    if (!passwordRegex.test(password))
+      return res.status(400).json({ message: 'Password must be at least 6 characters, contain at least 1 letter and 1 number' });
+//Filtrage des champ pour chaque role 
+    if(role == 'freelancer') 
+       if(!specialty || !price_per_hour)
+        return res.status(400).json({message: 'Speciality and price_per_hour are required for a freelancer '})
+    if(role == 'client')
+       if(specialty || price_per_hour)
+        return res.status(400).json({message: 'Clients should not provide specialty or price_per_hour'})
+
+    await User.register({ name, email, password ,role , specialty , price_per_hour});
+    
     res.status(201).json({ message: 'User registered successfully' });
 
   } catch (err) {

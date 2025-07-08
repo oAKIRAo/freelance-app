@@ -1,24 +1,8 @@
-import db from '../config/DataBase.js';
+import db from '../DATABASE/Connection.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 //Creation de la table
-const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-`;
-//On verifie l'existence de la table
-db.query(createTableQuery, (err, result) => {
-  if (err) {
-    console.error('Error creating users table:', err.message);
-  } else {
-    console.log('Users table is ready.');
-  }
-});
+
 //Methods
 //CRUD User
 const User = {
@@ -50,18 +34,28 @@ const User = {
       throw err;
     }
   },
-    create: (user) => {
-      return new Promise((resolve, reject) => {
-        db.query(
-          'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-          [user.name, user.email, user.password],
-          (err, result) => {
-            if (err) reject(err);
-            else resolve(result);
-          }
-        );
-      });
-    },
+create: async (user) => {
+  try {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+
+    const result = await new Promise((resolve, reject) => {
+      db.query(
+        'INSERT INTO users (name, email, password, role, specialty, price_per_hour) VALUES (?, ?, ?, ?, ?, ?)',
+        [user.name, user.email, hashedPassword, user.role, user.specialty || null, user.price_per_hour || null],
+        (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        }
+      );
+    });
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+},
+
   
     update: async (id, fieldsToUpdate) => {
       const keys = Object.keys(fieldsToUpdate);
@@ -96,12 +90,15 @@ const User = {
 //Aunthentification User
     register: async (user) => {
       try {
+
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+        const speciality = user.role == 'freelancer' ? user.specialty : null;
+        const price_per_hour = user.role == 'freelancer' ? user.price_per_hour : null;
         const result = await new Promise((resolve, reject) => {
           db.query(
-            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-            [user.name, user.email, hashedPassword],
+            'INSERT INTO users (name, email, password, role, specialty, price_per_hour) VALUES (?, ?, ?, ?, ?, ?)',
+            [user.name, user.email, hashedPassword,user.role, speciality,price_per_hour ],
             (err, result) => {
               if (err) reject(err);
               else resolve(result);
