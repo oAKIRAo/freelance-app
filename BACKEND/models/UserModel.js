@@ -10,7 +10,7 @@ const User = {
     return new Promise((resolve, reject) => {
       db.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
         if (err) return reject(err);
-        if (results.length === 0) return resolve(null); // No user found
+        if (results.length === 0) return resolve(null); //  user not  found
         resolve(results[0]); // Return the found user
       });
     });
@@ -29,7 +29,7 @@ const User = {
         'SELECT * FROM users WHERE id = ?',
         [id]
       );
-      return rows[0]; // single user
+      return rows[0]; 
     } catch (err) {
       throw err;
     }
@@ -38,11 +38,12 @@ create: async (user) => {
   try {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+    const defaultPicture = 'default.jpg';
 
     const result = await new Promise((resolve, reject) => {
       db.query(
-        'INSERT INTO users (name, email, password, role, specialty, price_per_hour) VALUES (?, ?, ?, ?, ?, ?)',
-        [user.name, user.email, hashedPassword, user.role, user.specialty || null, user.price_per_hour || null],
+        'INSERT INTO users (name, email, password, role, specialty, price_per_hour, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [user.name, user.email, hashedPassword, user.role, user.specialty || null, user.price_per_hour || null , defaultPicture],
         (err, result) => {
           if (err) reject(err);
           else resolve(result);
@@ -95,10 +96,11 @@ create: async (user) => {
         const hashedPassword = await bcrypt.hash(user.password, saltRounds);
         const speciality = user.role == 'freelancer' ? user.specialty : null;
         const price_per_hour = user.role == 'freelancer' ? user.price_per_hour : null;
+        const defaultPicture = 'default.jpg';
         const result = await new Promise((resolve, reject) => {
           db.query(
-            'INSERT INTO users (name, email, password, role, specialty, price_per_hour) VALUES (?, ?, ?, ?, ?, ?)',
-            [user.name, user.email, hashedPassword,user.role, speciality,price_per_hour ],
+            'INSERT INTO users (name, email, password, role, specialty, price_per_hour, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [user.name, user.email, hashedPassword,user.role, speciality, price_per_hour, defaultPicture ],
             (err, result) => {
               if (err) reject(err);
               else resolve(result);

@@ -10,7 +10,8 @@ export const createAdminIfNotExists = async () =>{
               name : 'Admin',
               email : EmailAdmin ,
               password : AdminPwd,
-              role : 'admin'
+              role : 'admin',
+              profile_picture:'default.jpg'
         });
         console.log('Admin created');
     }

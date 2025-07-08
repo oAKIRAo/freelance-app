@@ -6,9 +6,10 @@ const createTableQuery = `
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(100) NOT NULL,
-    specialty VARCHAR(255) NULL, 
-    price_per_hour DECIMAL(10,2) NULL, 
+    role ENUM('client', 'freelancer', 'admin') NOT NULL,
+    specialty VARCHAR(255) DEFAULT NULL, 
+    price_per_hour DECIMAL(10,2) DEFAULT NULL,
+    profile_picture VARCHAR(255) NOT NULL DEFAULT 'default.jpg',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `;
