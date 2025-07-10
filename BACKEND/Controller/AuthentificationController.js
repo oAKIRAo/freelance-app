@@ -1,7 +1,10 @@
+
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from "../models/UserModel.js";
 import { emailRegex, passwordRegex } from '../utils/validation.js';
+
+
 // Register a new user
 export const RegisterUser = async (req, res) => {
   try {

@@ -1,3 +1,4 @@
+
 import db from '../DATABASE/Connection.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -23,6 +24,7 @@ const User = {
       throw err;
     }
   },
+
   getById: async (id) => {
     try {
       const [rows] = await db.promise().query(
