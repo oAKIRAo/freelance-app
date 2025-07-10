@@ -24,7 +24,26 @@ const User = {
       throw err;
     }
   },
-
+  //ReserPassword
+  resetPassword: async (email, newPassword) => {
+    try {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+      const result = await new Promise((resolve, reject) => {
+        db.query( 'UPDATE users SET password = ? WHERE email = ?',
+          [hashedPassword, email],
+          (err,result) => {
+            if (err) reject(err);
+            else resolve(result);
+          }
+        );
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+      
   getById: async (id) => {
     try {
       const [rows] = await db.promise().query(

@@ -1,4 +1,3 @@
-
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from "../models/UserModel.js";
@@ -53,7 +52,7 @@ export const LoginUser = async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: 'Incorrect password' });
 
     const token = jwt.sign(
-      { id: user.id, email: user.email},  
+      { id: user.id, email: user.email,role: user.role},  
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
     );
@@ -64,6 +63,7 @@ export const LoginUser = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
       token
     });
@@ -72,3 +72,23 @@ export const LoginUser = async (req, res) => {
     res.status(500).json({ message: 'Login failed', error: error.message });
   }
 };
+//Reset password
+export const ResetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'Email and valid password (min 6 chars) are required' });
+    }
+
+    const user = await User.findByEmail(email);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    await User.resetPassword(email, newPassword);
+
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Password reset failed', error: error.message });
+  }
+};
+

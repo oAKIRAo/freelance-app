@@ -32,7 +32,7 @@ export const getAllUsers = async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   };
-export const getUserById = async (req, res) => {
+/*export const getUserById = async (req, res) => {
     try {
       const user = await User.getById(req.params.id);
       if (!user) return res.status(404).json({ message: 'User not found' });
@@ -40,7 +40,7 @@ export const getUserById = async (req, res) => {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  };
+  };*/
 export const updateUser = async (req, res) => {
     try {
       const result = await User.update(req.params.id, req.body);
