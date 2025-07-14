@@ -1,0 +1,10 @@
+import express from 'express';
+import { getPlanningByid, createPlanning , deletePlanningById,updatePlanningById} from '../Controller/PlanningController.js';
+import freelancerMiddleware from '../Middleware/FreelancerMiddlware.js';
+import authMiddleware from '../Middleware/authMiddleware.js';
+export const router = express.Router();
+router.get('/getplanning/:id', authMiddleware, freelancerMiddleware, getPlanningByid);
+router.post('/createplanning', authMiddleware, freelancerMiddleware, createPlanning);
+router.delete('/deleteplanning/:id', authMiddleware, freelancerMiddleware, deletePlanningById);
+router.patch('/updateplanning/:id', authMiddleware, freelancerMiddleware, updatePlanningById);
+export default router;

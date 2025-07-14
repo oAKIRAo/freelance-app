@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // <-- Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import '../styles/register.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
-import { MDBBtn, MDBContainer, MDBCard, MDBCardBody, MDBInput, MDBIcon } from 'mdb-react-ui-kit';
+import { MDBBtn, MDBContainer, MDBCard, MDBCardBody, MDBInput } from 'mdb-react-ui-kit';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';  // <-- import icons here
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // <-- Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,20 +26,16 @@ const Login = () => {
       });
 
       const data = await res.json();
-      console.log('Login response data:', data);
-      
       if (res.ok) {
         setMessage('Logged in successfully!');
-        // Store token if provided
         if (data.token) {
           localStorage.setItem('token', data.token);
+          navigate('/');
         }
-
-        // Redirect based on user role
         if (data.user.role === 'admin') {
-          navigate('/admin/dashboard'); // Admin route
+          navigate('/admin/dashboard');
         } else {
-          navigate('/user/home');         // Regular user route
+          navigate('/');
         }
       } else {
         setMessage(data.error || 'Login failed');
@@ -88,10 +85,6 @@ const Login = () => {
                 onChange={handleChange}
                 required
               />
-              <div className="d-flex justify-content-between mb-4">
-                <a href="/ResetPassword" className="auth-link">Forgot password?</a>
-                <a href="/register" className="auth-link">New here? Register</a>
-              </div>
               <span
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
@@ -101,10 +94,16 @@ const Login = () => {
                   transform: 'translateY(-50%)',
                   cursor: 'pointer',
                   zIndex: 2,
+                  userSelect: 'none',
                 }}
+                title={showPassword ? 'Hide password' : 'Show password'}
               >
-                <MDBIcon icon={showPassword ? 'eye-slash' : 'eye'} />
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
+            </div>
+            <div className="d-flex justify-content-between mb-4">
+              <a href="/ResetPassword" className="auth-link">Forgot password?</a>
+              <a href="/register" className="auth-link">New here? Register</a>
             </div>
 
             <MDBBtn className="mb-4 w-100 gradient-custom-4" size="lg" type="submit">

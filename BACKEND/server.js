@@ -1,6 +1,7 @@
 import express, { json } from 'express';
 import userRoutes from './routes/UserRoutes.js';
 import AuthRoutes from './routes/AuthRoutes.js';
+import PlaninngRoutes from './routes/PlanningRoutes.js';
 import dotenv from 'dotenv';
 import './DATABASE/init.js'
 import cors from 'cors';
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/auth',AuthRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/planning', PlaninngRoutes);
 app.use('/uploads/profile_pictures', express.static('uploads/profile_pictures'));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

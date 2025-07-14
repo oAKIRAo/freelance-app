@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import '../styles/register.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+import { motion, AnimatePresence } from 'framer-motion';  
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
 import {
   MDBBtn,
   MDBContainer,
   MDBCard,
   MDBCardBody,
   MDBInput,
-  MDBIcon,
+  MDBCheckbox,
 } from 'mdb-react-ui-kit';
 
 const Register = () => {
@@ -15,7 +18,11 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
+    role: 'client',
+    specialty: '',
+    price_per_hour: '',
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -26,17 +33,28 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const body = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      role: form.role,
+    }; 
+    
+    if (form.role === 'freelancer') {
+      body.specialty = form.specialty;
+      body.price_per_hour = form.price_per_hour;
+    }
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
       if (res.ok) {
-        setMessage('Registered successfully!');
-        // redirect or other logic
+        setMessage('You registered successfully!');
       } else {
         setMessage(data.error || 'Registration failed');
       }
@@ -57,14 +75,14 @@ const Register = () => {
       }}
     >
       <div className="mask gradient-custom-3 w-100 h-100 position-absolute top-0 start-0"></div>
-      <MDBCard className="m-5 w-50" style={{ maxWidth: '500px', zIndex: 1 }}>
+      <MDBCard className="m-5" style={{ maxWidth: '600px', zIndex: 1 }}>
         <MDBCardBody className="px-5">
-          <h2 className="text-uppercase text-center mb-5">Register</h2>
+          <h2 className="text-uppercase text-center mb-5">Create an account</h2>
 
           <form onSubmit={handleSubmit}>
             <MDBInput
               wrapperClass="mb-4"
-              label="Name"
+              label="Your Name"
               size="lg"
               id="name"
               name="name"
@@ -76,7 +94,7 @@ const Register = () => {
 
             <MDBInput
               wrapperClass="mb-4"
-              label="Email"
+              label="Your Email"
               size="lg"
               id="email"
               name="email"
@@ -86,6 +104,7 @@ const Register = () => {
               required
             />
 
+            {/* Password with show/hide toggle */}
             <div className="mb-4 position-relative">
               <MDBInput
                 label="Password"
@@ -107,9 +126,69 @@ const Register = () => {
                   cursor: 'pointer',
                   zIndex: 2,
                 }}
+                title={showPassword ? 'Hide password' : 'Show password'}
               >
-                <MDBIcon icon={showPassword ? 'eye-slash' : 'eye'} />
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
+            </div>
+
+            <div className="mb-4">
+              <select
+                className="form-select"
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+              >
+                <option value="client">Client</option>
+                <option value="freelancer">Freelancer</option>
+              </select>
+            </div>
+
+            <AnimatePresence initial={false}>
+              {form.role === 'freelancer' && (
+                <motion.div
+                  key="freelancer-fields"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ overflow: 'hidden' }}
+                >
+                  <MDBInput
+                    wrapperClass="mb-4"
+                    label="Specialty"
+                    size="lg"
+                    id="specialty"
+                    name="specialty"
+                    type="text"
+                    value={form.specialty}
+                    onChange={handleChange}
+                    required
+                  />
+
+                  <MDBInput
+                    wrapperClass="mb-4"
+                    label="Price per hour ($)"
+                    size="lg"
+                    id="price_per_hour"
+                    name="price_per_hour"
+                    type="number"
+                    step="0.01"
+                    value={form.price_per_hour}
+                    onChange={handleChange}
+                    required
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="d-flex justify-content-center mb-4">
+              <MDBCheckbox
+                name="terms"
+                id="terms"
+                label="I agree to the Terms of Service"
+                required
+              />
             </div>
 
             <MDBBtn className="mb-4 w-100 gradient-custom-4" size="lg" type="submit">
@@ -125,10 +204,6 @@ const Register = () => {
                 {message}
               </p>
             )}
-
-            <div className="text-center">
-              <a href="/login" className="auth-link text-muted">Already have an account? Login</a>
-            </div>
           </form>
         </MDBCardBody>
       </MDBCard>

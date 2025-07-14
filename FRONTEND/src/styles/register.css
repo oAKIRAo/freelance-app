@@ -23,3 +23,20 @@ a.text-decoration-none:hover {
   color: #75fc967a; /* Bootstrap blue or pick your own */
   text-decoration: underline;
 }
+/* Make sure the card content has visible text in dark mode */
+body.dark .card-body,
+body.dark .text-uppercase {
+  color: #ffffff;
+}
+
+/* Optional: Adjust MDBBtn colors in dark mode */
+body.dark .btn.gradient-custom-4 {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+/* Fix auth links in dark mode */
+body.dark .auth-link {
+  color: #ddd;
+}
+

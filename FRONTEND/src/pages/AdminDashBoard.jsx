@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/admindashboard.css'
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -178,45 +179,52 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '900px', margin: 'auto' }}>
-      <h2>Admin Dashboard</h2>
+    <div className="container">
+      <h2 className="title">Admin Dashboard</h2>
 
-      <form
-        onSubmit={isEditing ? handleUpdateUser : handleAddUser}
-        style={{ marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}
-      >
-        <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
-        <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-        <input name="password" type="password" placeholder={isEditing ? 'New Password (optional)' : 'Password'} value={form.password} onChange={handleChange} required={!isEditing} />
-        <select name="role" value={form.role} onChange={handleChange}>
+      <form onSubmit={isEditing ? handleUpdateUser : handleAddUser} className="form">
+        <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required className="input" />
+        <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required className="input" />
+        <input
+          name="password"
+          type="password"
+          placeholder={isEditing ? 'New Password (optional)' : 'Password'}
+          value={form.password}
+          onChange={handleChange}
+          required={!isEditing}
+          className="input"
+        />
+        <select name="role" value={form.role} onChange={handleChange} className="select">
           <option value="client">Client</option>
           <option value="freelancer">Freelancer</option>
         </select>
 
         {form.role === 'freelancer' && (
           <>
-            <input name="specialty" placeholder="Specialty" value={form.specialty} onChange={handleChange} required />
-            <input name="price_per_hour" type="number" placeholder="Price per hour" value={form.price_per_hour} onChange={handleChange} required />
+            <input name="specialty" placeholder="Specialty" value={form.specialty} onChange={handleChange} required className="input" />
+            <input name="price_per_hour" type="number" placeholder="Price per hour" value={form.price_per_hour} onChange={handleChange} required className="input" />
           </>
         )}
 
-        <button type="submit">{isEditing ? 'Update' : 'Add'}</button>
-        {isEditing && <button type="button" onClick={() => { resetForm(); setIsEditing(false); }}>Cancel</button>}
+        <button type="submit" className="button">{isEditing ? 'Update' : 'Add'}</button>
+        {isEditing && (
+          <button type="button" onClick={() => { resetForm(); setIsEditing(false); }} className="button cancelButton">Cancel</button>
+        )}
       </form>
 
       {loading ? (
         <p>Loading users...</p>
       ) : (
-        <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Specialty</th>
-              <th>Price / Hour</th>
-              <th>Actions</th>
+              <th className="th">ID</th>
+              <th className="th">Name</th>
+              <th className="th">Email</th>
+              <th className="th">Role</th>
+              <th className="th">Specialty</th>
+              <th className="th">Price / Hour</th>
+              <th className="th">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -227,15 +235,15 @@ const AdminDashboard = () => {
             ) : (
               users.map((user) => (
                 <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>{user.specialty || '-'}</td>
-                  <td>{user.price_per_hour || '-'}</td>
-                  <td>
-                    <button onClick={() => handleEditUser(user)} style={{ marginRight: '0.5rem' }}>Edit</button>
-                    <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
+                  <td className="td">{user.id}</td>
+                  <td className="td">{user.name}</td>
+                  <td className="td">{user.email}</td>
+                  <td className="td">{user.role}</td>
+                  <td className="td">{user.specialty || '-'}</td>
+                  <td className="td">{user.price_per_hour || '-'}</td>
+                  <td className="td">
+                    <button onClick={() => handleEditUser(user)} className="actions editButton">Edit</button>
+                    <button onClick={() => handleDeleteUser(user.id)} className="actions deleteButton">Delete</button>
                   </td>
                 </tr>
               ))

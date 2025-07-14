@@ -2,7 +2,6 @@
 import db from '../DATABASE/Connection.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-//Creation de la table
 
 //Methods
 //CRUD User

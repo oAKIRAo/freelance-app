@@ -1,5 +1,5 @@
 import db from '../DATABASE/Connection.js';
-
+//User table creation script
 const createTableQuery = `
   CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,5 +19,24 @@ db.query(createTableQuery, (err, result) => {
     console.error('Error creating users table:', err.message);
   } else {
     console.log('Users table is ready.');
+  }
+});
+//Planning table creation script
+const createPlanningTableQuery = `
+    CREATE TABLE IF NOT EXISTS planning_freelance (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      freelancer_id INT NOT NULL,
+      day_of_week ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday') NOT NULL,
+      start_time TIME NOT NULL,
+      end_time TIME NOT NULL,
+      foreign key (freelancer_id) references users(id) ON DELETE CASCADE
+    );
+`;
+//On verifie l'existence de la table  
+db.query(createPlanningTableQuery, (err, result) => {
+  if (err) {
+    console.error('Error creating planning_freelance table:', err.message);
+  } else {
+    console.log('planning_freelance table is ready.');
   }
 });
