@@ -10,6 +10,18 @@ const PlanningFreelance = {
             throw err;
         }
     },
+    //Method to get planning of a freelancer by day of the week
+    getPlanningByDay: async (freelancerId, dayOfWeek) => {
+        try {
+            const [rows] = await db.promise().query(
+                'SELECT * FROM planning_freelance WHERE freelancer_id = ? AND day_of_week = ?',
+                [freelancerId, dayOfWeek]
+            );
+            return rows; // Return all planning found for the freelancer on that day
+        } catch (err) {
+            throw err;
+        }
+    },
     // Method to create a new planning
     create: async (planning) => {
          try{ 

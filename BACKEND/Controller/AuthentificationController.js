@@ -17,6 +17,9 @@ export const RegisterUser = async (req, res) => {
       {
      throw new Error('Invalid role , meust be client or freelancer');
       }
+//Check if the user already exists
+    const existingMail = await User.findByEmail(email);
+    if (existingMail) return res.status(400).json({ message: 'email already used' });
 //Verification d'email
     if (!emailRegex.test(email))
       return res.status(400).json({ message: 'Invalid email format' });

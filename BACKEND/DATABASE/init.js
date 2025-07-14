@@ -40,3 +40,25 @@ db.query(createPlanningTableQuery, (err, result) => {
     console.log('planning_freelance table is ready.');
   }
 });
+//Appoinemet Table creation script
+const createAppointmentTableQuery = `
+  CREATE TABLE IF NOT EXISTS appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    freelancer_id INT NOT NULL,
+    client_id INT NOT NULL,
+    appointment_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    status ENUM('booked', 'canceled', 'completed') DEFAULT 'booked',
+    FOREIGN KEY (freelancer_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+`;
+//On verifie l'existence de la table
+db.query(createAppointmentTableQuery, (err, result) => {
+  if (err) {
+    console.error('Error creating appointments table:', err.message);
+  } else {
+    console.log('Appointments table is ready.');
+  }
+});

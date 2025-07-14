@@ -56,7 +56,7 @@ const Register = () => {
       if (res.ok) {
         setMessage('You registered successfully!');
       } else {
-        setMessage(data.error || 'Registration failed');
+        setMessage(data.message||data.error || 'Registration failed');
       }
     } catch (err) {
       console.error(err);
