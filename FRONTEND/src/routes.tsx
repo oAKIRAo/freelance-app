@@ -1,9 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Register from './pages/Register.jsx';
-import Login from './pages/Login.jsx';
-import ResetPassword from './pages/ResetPassword.jsx';
-import AdminDashboard from './pages/AdminDashBoard.jsx';
-import Home from './pages/Home.jsx';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
+import AdminDashboard from './pages/AdminDashBoard';
+import Home from './pages/Home';
+import AvailabilityForm from './pages/Availability';
+
 export default function AppRoutes() {
   return (
     <Router>
@@ -13,7 +15,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/ResetPassword" element={<ResetPassword />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-
+        <Route path="/client/availability" element={<AvailabilityForm />} />
       </Routes>
     </Router>
   );

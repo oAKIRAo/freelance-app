@@ -1,21 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/register.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import { MDBBtn, MDBContainer, MDBCard, MDBCardBody, MDBInput } from 'mdb-react-ui-kit';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';  // <-- import icons here
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-const Login = () => {
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState('');
+interface LoginForm {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token?: string;
+  user?: {
+    role: string;
+  };
+  error?: string;
+}
+
+const Login: React.FC = () => {
+  const [form, setForm] = useState<LoginForm>({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -25,14 +38,13 @@ const Login = () => {
         body: JSON.stringify(form),
       });
 
-      const data = await res.json();
+      const data: LoginResponse = await res.json();
       if (res.ok) {
         setMessage('Logged in successfully!');
         if (data.token) {
           localStorage.setItem('token', data.token);
-          navigate('/');
         }
-        if (data.user.role === 'admin') {
+        if (data.user?.role === 'admin') {
           navigate('/admin/dashboard');
         } else {
           navigate('/');

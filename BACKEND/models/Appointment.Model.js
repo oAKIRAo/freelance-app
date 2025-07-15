@@ -17,6 +17,26 @@ const Appointment = {
             throw err;
         }
     },
+    // Get an appointment by date range
+   getAppointments: async (freelancerId,dateRange) => {
+      const { startDate, endDate } = dateRange;
+
+    try {
+        if (!startDate || !endDate) {
+            throw new Error('Start date and end date are required');
+        }  
+        const [rows] = await db.promise().query(
+             `SELECT * FROM appointments 
+             WHERE freelancer_id = ? 
+             AND appointment_date BETWEEN ? AND ? 
+             AND status = 'booked'`,
+            [freelancerId, startDate, endDate]
+            );
+          return rows;
+       }catch (err) {
+            throw err;
+        }
+    },
     // Create a new appointment
     create: async (appointment) => {
         try {
@@ -87,6 +107,7 @@ const Appointment = {
     } catch (err) {
         throw err;
     }}
+
 };
   
 

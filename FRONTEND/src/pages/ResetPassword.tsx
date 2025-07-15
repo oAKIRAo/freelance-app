@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/register.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import {
@@ -11,23 +11,29 @@ import {
   MDBIcon,
 } from 'mdb-react-ui-kit';
 
-const ResetPassword = () => {
-  const navigate = useNavigate(); 
+interface ResetPasswordForm {
+  email: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 
-  const [form, setForm] = useState({
+const ResetPassword: React.FC = () => {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState<ResetPasswordForm>({
     email: '',
     newPassword: '',
     confirmPassword: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (form.newPassword !== form.confirmPassword) {
@@ -44,14 +50,11 @@ const ResetPassword = () => {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage(' Password reset successfully!');
+        setMessage('Password reset successfully!');
         setForm({ email: '', newPassword: '', confirmPassword: '' });
-
-        
-          navigate('/login'); 
-        }
-       else {
-        setMessage(data.message || ' Password reset failed');
+        navigate('/login');
+      } else {
+        setMessage(data.message || 'Password reset failed');
       }
     } catch (err) {
       console.error(err);
@@ -146,7 +149,7 @@ const ResetPassword = () => {
             {message && (
               <p
                 className={`text-center fw-bold ${
-                  message.includes('✅') ? 'text-success' : 'text-danger'
+                  message.includes('successfully') ? 'text-success' : 'text-danger'
                 }`}
               >
                 {message}

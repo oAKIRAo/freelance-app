@@ -1,76 +1,206 @@
-.container {
+/* Global */
+.admin-container {
+  max-width: 1100px;
+  margin: 0 auto;
   padding: 2rem;
-  max-width: 900px;
-  margin: auto;
-  font-family: sans-serif;
+  font-family: 'Inter', sans-serif;
+  color: #1e1e1e;
 }
 
 .title {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-.form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  font-size: 2rem;
+  font-weight: 600;
   margin-bottom: 2rem;
 }
 
-.input,
-.select,
-.button {
-  padding: 0.5rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+.message {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+.message.success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.message.error {
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
-.button {
-  background-color: #007bff;
-  color: white;
-  border: none;
+button {
   cursor: pointer;
 }
 
-.button:hover {
-  background-color: #0056b3;
+.btn {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  transition: 0.2s all;
 }
 
-.cancelButton {
-  background-color: #6c757d;
+.btn-submit {
+  background-color: #9147ff;
+  color: white;
+}
+.btn-submit:hover {
+  background-color: #772ce8;
 }
 
-.cancelButton:hover {
-  background-color: #5a6268;
+.btn-cancel {
+  background-color: #eee;
+  color: #333;
+}
+.btn-cancel:hover {
+  background-color: #ddd;
 }
 
-.table {
+.btn-edit {
+  background-color: #3b82f6;
+  color: white;
+}
+.btn-edit:hover {
+  background-color: #2563eb;
+}
+
+.btn-delete {
+  background-color: #ef4444;
+  color: white;
+}
+.btn-delete:hover {
+  background-color: #dc2626;
+}
+
+.card {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+}
+
+.table-card {
+  overflow-x: auto;
+}
+
+.table-wrapper {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.95rem;
 }
-
-.th,
-.td {
-  border: 1px solid #ddd;
+th, td {
   padding: 0.75rem;
   text-align: left;
 }
-
+th {
+  background-color: #f9fafb;
+}
+tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+}
 .actions button {
   margin-right: 0.5rem;
-  padding: 0.4rem 0.6rem;
-  border-radius: 5px;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+.capitalize {
+  text-transform: capitalize;
+}
+.loading {
+  padding: 1rem;
+  color: #666;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 15, 15, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 450px;
+  width: 100%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.15);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
   border: none;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
-.edit {
-  background-color: #ffc107;
+/* Form Styles inside modal */
+.form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+.form input, .form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+.form input:focus, .form select:focus {
+  border-color: #9147ff;
+  outline: none;
 }
 
-.delete {
-  background-color: #dc3545;
+.required {
+  color: #ef4444;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.btn-logout {
+  background-color: #f44336;
   color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #d32f2f;
 }

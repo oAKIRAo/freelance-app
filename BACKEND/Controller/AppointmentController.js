@@ -13,7 +13,7 @@ export const createAppointment = async (req, res) => {
 
         const dayOfWeek = new Date(appointment_date).toLocaleDateString('en-US', { weekday: 'long' });
 
-        // Get availability slots for the freelancer on the requested day
+        // check available slots for the freelancer on the requested day
         const planning = await PlanningFreelance.getPlanningByDay(freelancer_id, dayOfWeek);
 
         if (!planning || planning.length === 0) {

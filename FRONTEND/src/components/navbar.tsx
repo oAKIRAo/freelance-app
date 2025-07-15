@@ -2,11 +2,11 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const isAuthenticated = localStorage.getItem('token');
+  const isAuthenticated = Boolean(localStorage.getItem('token'));
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     localStorage.removeItem('token');
     navigate('/login');
   };

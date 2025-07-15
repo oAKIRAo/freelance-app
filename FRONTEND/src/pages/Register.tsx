@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import '../styles/register.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import { motion, AnimatePresence } from 'framer-motion';  
@@ -13,8 +13,17 @@ import {
   MDBCheckbox,
 } from 'mdb-react-ui-kit';
 
-const Register = () => {
-  const [form, setForm] = useState({
+interface FormState {
+  name: string;
+  email: string;
+  password: string;
+  role: 'client' | 'freelancer';
+  specialty: string;
+  price_per_hour: string; // keep as string because input value is string, can convert later if needed
+}
+
+const Register: React.FC = () => {
+  const [form, setForm] = useState<FormState>({
     name: '',
     email: '',
     password: '',
@@ -23,23 +32,23 @@ const Register = () => {
     price_per_hour: '',
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const body = {
+    const body: any = {
       name: form.name,
       email: form.email,
       password: form.password,
       role: form.role,
-    }; 
-    
+    };
+
     if (form.role === 'freelancer') {
       body.specialty = form.specialty;
       body.price_per_hour = form.price_per_hour;
@@ -56,7 +65,7 @@ const Register = () => {
       if (res.ok) {
         setMessage('You registered successfully!');
       } else {
-        setMessage(data.message||data.error || 'Registration failed');
+        setMessage(data.message || data.error || 'Registration failed');
       }
     } catch (err) {
       console.error(err);
