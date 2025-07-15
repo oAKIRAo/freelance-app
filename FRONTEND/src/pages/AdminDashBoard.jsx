@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/admindashboard.css'
+import { useNavigate } from 'react-router-dom';
+import '../styles/admindashboard.css';
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+import { MDBBtn, MDBContainer, MDBInput, MDBTable, MDBTableHead, MDBTableBody } from 'mdb-react-ui-kit';
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -14,32 +17,38 @@ const AdminDashboard = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (!token) {
+      navigate('/login');
+    } else {
+      fetchUsers();
+    }
+  }, [navigate, token]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/users', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users`, {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
-      const text = await res.text();
-      try {
-        const data = JSON.parse(text);
-        setUsers(data);
-      } catch {
-        console.error("Response was not JSON:", text);
-        throw new Error("Server returned invalid JSON.");
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
+
+      const data = await res.json();
+      setUsers(data);
     } catch (error) {
-      alert(error.message);
+      setMessage('Failed to fetch users: ' + error.message);
+      console.error("Fetch error:", error);
     } finally {
       setLoading(false);
     }
@@ -49,120 +58,81 @@ const AdminDashboard = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleAddUser = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.email || !form.password || !form.role) {
-      return alert('Please fill in all required fields.');
+    if (!form.name || !form.email || (!isEditing && !form.password) || !form.role) {
+      return setMessage('Please fill in all required fields.');
     }
 
-    const userToCreate = {
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      role: form.role,
-      specialty: form.role === 'freelancer' ? form.specialty : undefined,
-      price_per_hour: form.role === 'freelancer' ? form.price_per_hour : undefined,
-    };
+    const endpoint = isEditing 
+      ? `${import.meta.env.VITE_API_URL}/api/users/update/${form.id}`
+      : `${import.meta.env.VITE_API_URL}/api/users/create`;
+
+    const method = isEditing ? 'PATCH' : 'POST';
 
     try {
-      const res = await fetch('/api/users/create', {
-        method: 'POST',
+      const res = await fetch(endpoint, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(userToCreate),
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          ...(!isEditing && { password: form.password }),
+          role: form.role,
+          ...(form.role === 'freelancer' && {
+            specialty: form.specialty,
+            price_per_hour: form.price_per_hour
+          })
+        }),
       });
 
-      const text = await res.text();
-      const data = JSON.parse(text);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Operation failed');
 
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to create user');
-      }
-
-      alert('User created successfully!');
+      setMessage(`${isEditing ? 'Updated' : 'Created'} successfully!`);
       resetForm();
       fetchUsers();
+      setIsEditing(false);
     } catch (error) {
-      alert(error.message);
+      setMessage(error.message);
     }
   };
 
-  const handleEditUser = (user) => {
+  const handleEdit = (user) => {
     setIsEditing(true);
     setForm({
       id: user.id,
       name: user.name,
       email: user.email,
       password: '',
-      role: user.role || 'client',
+      role: user.role,
       specialty: user.specialty || '',
       price_per_hour: user.price_per_hour || '',
     });
   };
 
-  const handleUpdateUser = async (e) => {
-    e.preventDefault();
-
-    const userToUpdate = {
-      name: form.name,
-      email: form.email,
-      ...(form.password && { password: form.password }),
-      role: form.role,
-      specialty: form.role === 'freelancer' ? form.specialty : undefined,
-      price_per_hour: form.role === 'freelancer' ? form.price_per_hour : undefined,
-    };
-
-    try {
-      const res = await fetch(`/api/users/update/${form.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(userToUpdate),
-      });
-
-      const text = await res.text();
-      const data = JSON.parse(text);
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to update user');
-      }
-
-      alert('User updated successfully!');
-      resetForm();
-      fetchUsers();
-      setIsEditing(false);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  const handleDeleteUser = async (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      const res = await fetch(`/api/users/delete/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      const text = await res.text();
-      const data = JSON.parse(text);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Delete failed');
 
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to delete user');
-      }
-
-      alert('User deleted successfully!');
+      setMessage('User deleted successfully!');
       fetchUsers();
     } catch (error) {
-      alert(error.message);
+      setMessage(error.message);
     }
   };
 
@@ -179,79 +149,167 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="container">
-      <h2 className="title">Admin Dashboard</h2>
+    <MDBContainer className="py-5">
+      <h2 className="text-center mb-4">Admin Dashboard</h2>
 
-      <form onSubmit={isEditing ? handleUpdateUser : handleAddUser} className="form">
-        <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required className="input" />
-        <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required className="input" />
-        <input
-          name="password"
-          type="password"
-          placeholder={isEditing ? 'New Password (optional)' : 'Password'}
-          value={form.password}
-          onChange={handleChange}
-          required={!isEditing}
-          className="input"
-        />
-        <select name="role" value={form.role} onChange={handleChange} className="select">
-          <option value="client">Client</option>
-          <option value="freelancer">Freelancer</option>
-        </select>
-
-        {form.role === 'freelancer' && (
-          <>
-            <input name="specialty" placeholder="Specialty" value={form.specialty} onChange={handleChange} required className="input" />
-            <input name="price_per_hour" type="number" placeholder="Price per hour" value={form.price_per_hour} onChange={handleChange} required className="input" />
-          </>
-        )}
-
-        <button type="submit" className="button">{isEditing ? 'Update' : 'Add'}</button>
-        {isEditing && (
-          <button type="button" onClick={() => { resetForm(); setIsEditing(false); }} className="button cancelButton">Cancel</button>
-        )}
-      </form>
-
-      {loading ? (
-        <p>Loading users...</p>
-      ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th className="th">ID</th>
-              <th className="th">Name</th>
-              <th className="th">Email</th>
-              <th className="th">Role</th>
-              <th className="th">Specialty</th>
-              <th className="th">Price / Hour</th>
-              <th className="th">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 ? (
-              <tr>
-                <td colSpan="7" style={{ textAlign: 'center' }}>No users found</td>
-              </tr>
-            ) : (
-              users.map((user) => (
-                <tr key={user.id}>
-                  <td className="td">{user.id}</td>
-                  <td className="td">{user.name}</td>
-                  <td className="td">{user.email}</td>
-                  <td className="td">{user.role}</td>
-                  <td className="td">{user.specialty || '-'}</td>
-                  <td className="td">{user.price_per_hour || '-'}</td>
-                  <td className="td">
-                    <button onClick={() => handleEditUser(user)} className="actions editButton">Edit</button>
-                    <button onClick={() => handleDeleteUser(user.id)} className="actions deleteButton">Delete</button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      {message && (
+        <div className={`alert ${message.includes('successfully') ? 'alert-success' : 'alert-danger'}`}>
+          {message}
+        </div>
       )}
-    </div>
+
+      <div className="card mb-4">
+        <div className="card-body">
+          <form onSubmit={handleSubmit}>
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <MDBInput
+                  label="Name"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="col-md-6">
+                <MDBInput
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <div className="col-md-6">
+                <MDBInput
+                  label={isEditing ? "New Password (optional)" : "Password"}
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  required={!isEditing}
+                />
+              </div>
+              <div className="col-md-6">
+                <select
+                  className="form-select"
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="client">Client</option>
+                  <option value="freelancer">Freelancer</option>
+                </select>
+              </div>
+            </div>
+
+            {form.role === 'freelancer' && (
+              <div className="row mb-3">
+                <div className="col-md-6">
+                  <MDBInput
+                    label="Specialty"
+                    name="specialty"
+                    value={form.specialty}
+                    onChange={handleChange}
+                    required={form.role === 'freelancer'}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <MDBInput
+                    label="Price per hour"
+                    type="number"
+                    name="price_per_hour"
+                    value={form.price_per_hour}
+                    onChange={handleChange}
+                    required={form.role === 'freelancer'}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="d-flex justify-content-end">
+              <MDBBtn type="submit" color="primary" className="me-2">
+                {isEditing ? 'Update User' : 'Add User'}
+              </MDBBtn>
+              {isEditing && (
+                <MDBBtn type="button" color="secondary" onClick={() => {
+                  resetForm();
+                  setIsEditing(false);
+                }}>
+                  Cancel
+                </MDBBtn>
+              )}
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-body">
+          {loading ? (
+            <div className="text-center">
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <MDBTable responsive>
+              <MDBTableHead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Specialty</th>
+                  <th>Price/Hour</th>
+                  <th>Actions</th>
+                </tr>
+              </MDBTableHead>
+              <MDBTableBody>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="text-center">No users found</td>
+                  </tr>
+                ) : (
+                  users.map(user => (
+                    <tr key={user.id}>
+                      <td>{user.id}</td>
+                      <td>{user.name}</td>
+                      <td>{user.email}</td>
+                      <td>{user.role}</td>
+                      <td>{user.specialty || '-'}</td>
+                      <td>{user.price_per_hour || '-'}</td>
+                      <td>
+                        <MDBBtn
+                          color="warning"
+                          size="sm"
+                          className="me-2"
+                          onClick={() => handleEdit(user)}
+                        >
+                          Edit
+                        </MDBBtn>
+                        <MDBBtn
+                          color="danger"
+                          size="sm"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          Delete
+                        </MDBBtn>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </MDBTableBody>
+            </MDBTable>
+          )}
+        </div>
+      </div>
+    </MDBContainer>
   );
 };
 
