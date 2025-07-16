@@ -5,6 +5,7 @@ import ResetPassword from './pages/ResetPassword';
 import AdminDashboard from './pages/AdminDashBoard';
 import Home from './pages/Home';
 import AvailabilityForm from './pages/Availability';
+import SearchResults from './pages/Search';
 
 export default function AppRoutes() {
   return (
@@ -16,6 +17,8 @@ export default function AppRoutes() {
         <Route path="/ResetPassword" element={<ResetPassword />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/client/availability" element={<AvailabilityForm />} />
+        <Route path="/search" element={<SearchResults />} />
+        {/* Add other routes as needed */}
       </Routes>
     </Router>
   );

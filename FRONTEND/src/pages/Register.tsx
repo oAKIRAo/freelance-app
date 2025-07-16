@@ -137,7 +137,6 @@ const Register: React.FC = () => {
                 }}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
 

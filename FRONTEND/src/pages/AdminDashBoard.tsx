@@ -279,7 +279,6 @@ const AdminDashboard: React.FC = () => {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Role</th>
@@ -298,7 +297,6 @@ const AdminDashboard: React.FC = () => {
                 ) : (
                   users.map(user => (
                     <tr key={user.id}>
-                      <td>{user.id}</td>
                       <td className="font-bold">{user.name}</td>
                       <td>{user.email}</td>
                       <td className="capitalize">{user.role}</td>

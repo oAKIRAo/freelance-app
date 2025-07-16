@@ -1,24 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuIndicator,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
-} from '@/components/ui/navigation-menu';
+import { useNavigate, Link } from 'react-router-dom';
+import { Search, User } from 'lucide-react';
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     Boolean(localStorage.getItem('token'))
   );
-
-  // State for search input
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     setIsAuthenticated(Boolean(localStorage.getItem('token')));
@@ -27,99 +15,66 @@ const Navbar: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-    navigate('/login');
-  };
-
-  // Optional: handle search submit (for example, navigate to search results)
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-    }
+    navigate('/');
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-white px-6 py-3 shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
-        <Link to="/" className="text-lg font-semibold text-gray-900">
-          YourBrand
-        </Link>
+    <div className="w-full">
+     <nav className="sticky top-0 z-50 w-full border-b px-6 py-3 shadow-sm"
+         style={{background: 'linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1))',}}
+>        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="text-sm font-semibold text-black cursor-pointer">
+            Logo
+          </Link>
 
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Explore</NavigationMenuTrigger>
-              <NavigationMenuContent className="rounded-md bg-white shadow-lg p-4 w-48">
-                <ul className="space-y-2">
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link to="/freelancers" className="block hover:text-blue-500">
-                        Freelancers
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link to="/clients" className="block hover:text-blue-500">
-                        Clients
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+          {/* Center nav menu */}
+          <ul
+            style={{
+              display: 'flex',
+              listStyle: 'none',
+              padding: 0,
+              margin: 0,
+              color: 'black',
+              fontWeight: 500,
+              fontSize: '0.875rem',
+            }}
+          >
+            <li style={{ marginRight: '1.5rem', cursor: 'pointer' }}>Home</li>
+            <li style={{ marginRight: '1.5rem', cursor: 'pointer' }}>About Us</li>
+            <li style={{ marginRight: '1.5rem', cursor: 'pointer' }}>Services</li>
+            <li style={{ marginRight: '1.5rem', cursor: 'pointer' }}>Featured</li>
+            <li style={{ cursor: 'pointer' }}>Contact Me</li>
+          </ul>
 
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link to="/about" className="hover:text-blue-500">
-                  About
+          {/* Right side icons + auth */}
+          <div className="flex items-center gap-4">            
+            {/* Profile / Auth */}
+            {!isAuthenticated ? (
+              <>
+                <Link to="/login" className="text-black hover:text-gray-600 text-sm cursor-pointer">
+                  Login
                 </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-          <NavigationMenuIndicator />
-          <NavigationMenuViewport />
-        </NavigationMenu>
-
-        {/* Search bar (only visible on md and larger screens) */}
-        <form
-          onSubmit={handleSearchSubmit}
-          className=" md:block mx-4 flex-grow max-w-xs"
-        >
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </form>
-
-        <div className="flex items-center gap-4">
-          {!isAuthenticated ? (
-            <>
-              <Link to="/login" className="text-gray-700 hover:text-blue-500">
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="text-gray-700 hover:text-blue-500"
-              >
-                Register
-              </Link>
-            </>
-          ) : (
-            <button
-              onClick={handleLogout}
-              className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600 transition"
-            >
-              Logout
-            </button>
-          )}
+                <Link to="/register" className="text-black hover:text-gray-600 text-sm cursor-pointer">
+                  Register
+                </Link>
+                <User size={18} className="text-black cursor-pointer" />
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleLogout}
+                  className="text-black hover:text-gray-600 text-sm cursor-pointer bg-transparent border-none p-0"
+                >
+                  Logout
+                </button>
+                <User size={18} className="text-black cursor-pointer" />
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
 

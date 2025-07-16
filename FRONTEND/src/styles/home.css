@@ -1,0 +1,52 @@
+/* home.css */
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+  padding: 1rem 1rem;
+  background: linear-gradient(
+    to right,
+    rgba(132, 250, 176, 0.4),
+    rgba(143, 211, 244, 0.4)
+  );
+  text-align: center;
+}
+
+.home-title {
+  font-size: 2.5rem; /* roughly text-4xl */
+  font-weight: 700;
+  color: #2d3748; /* Tailwind's gray-800 */
+  margin-bottom: 1rem;
+}
+
+.home-subtitle {
+  color: #4a5568; /* Tailwind's gray-700 */
+  font-size: 1.125rem; /* text-lg */
+  margin-bottom: 2rem;
+  max-width: 40rem; /* ~640px */
+  line-height: 1.5;
+}
+
+.home-form {
+  width: 100%;
+  max-width: 28rem; /* ~448px */
+}
+
+.home-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db; /* Tailwind's gray-300 */
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.home-search-input:focus {
+  border-color: #68d391; /* Tailwind's green-400 */
+  box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.5);
+}

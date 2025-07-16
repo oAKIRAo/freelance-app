@@ -110,7 +110,6 @@ const Login: React.FC = () => {
                 }}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
             <div className="d-flex justify-content-between mb-4">

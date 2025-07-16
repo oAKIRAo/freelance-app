@@ -1,0 +1,91 @@
+/* Background Gradient Same as Home */
+.search-results-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: calc(100vh - 64px);
+  padding: 2rem 1rem;
+  background: linear-gradient(
+    to right,
+    rgba(132, 250, 176, 0.4),
+    rgba(143, 211, 244, 0.4)
+  );
+  text-align: center;
+}
+
+/* Heading */
+.search-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 2rem;
+}
+
+/* Cards Layout */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 2rem;
+}
+
+/* Individual Card Styling */
+.user-card {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.user-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+/* Text Styling inside Cards */
+.user-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.user-specialty,
+.user-price {
+  font-size: 1rem;
+  color: #555;
+  margin: 0.5rem 0;
+}
+
+/* View Planning Button */
+.view-planning-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1));
+  color: #333;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-planning-btn:hover {
+  background: linear-gradient(to right, rgba(132, 250, 176, 0.8), rgba(143, 211, 244, 0.8));
+  transform: scale(1.05);
+}
+
+/* Error Message Styling */
+.error-message {
+  color: red;
+  font-weight: 500;
+  margin-top: 1rem;
+}
