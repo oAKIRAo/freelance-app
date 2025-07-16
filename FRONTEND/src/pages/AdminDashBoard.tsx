@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Modal from '../components/modal';
+import Modal from '../components/Modal';
 import '../styles/adminDashboard.css';
 
 interface User {

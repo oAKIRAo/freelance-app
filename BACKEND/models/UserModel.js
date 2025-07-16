@@ -1,4 +1,3 @@
-
 import db from '../DATABASE/Connection.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -151,7 +150,22 @@ create: async (user) => {
           resolve({ user, token });
         });
       });
-    }
+    },
+    // search freelancer by specialty
+    searchFreelancerByspecialty: async (specialty) => {
+      try {
+        if (!specialty) {
+          throw new Error('Specialty is required to search freelancers');
+        }
+        const [rows] = await db.promise().query(
+          'SELECT * FROM users WHERE role = "freelancer" AND specialty LIKE ?',
+          [`${specialty}%`]
+        );
+        return rows;
+      } catch (error) {
+        throw error;
+    }}
+
   
   };
   

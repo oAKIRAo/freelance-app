@@ -57,3 +57,31 @@ export const createAppointment = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+export const CancelAppointment = async (req, res) => {
+    try {
+        const appointmentId = req.params.id;
+        const appointment = await Appointment.getById(appointmentId);
+        if (appointment.status !== 'booked') {
+            return res.status(400).json({ message: 'Only booked appointments can be canceled' });
+        }
+        const result = await Appointment.cancelById(appointmentId);
+        res.status(200).json({ message: 'Appointment canceled', result });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+export const CompleteAppointment = async (req, res) => {
+    try{
+        const appointmentId = req.params.id;
+        const appointment = await Appointment.getById(appointmentId);
+        if (appointment.status !== 'booked') {
+            return res.status(400).json({ message: 'Only booked appointments can be completed' });
+        }
+        const result = await Appointment.completeById(appointmentId);
+        res.status(200).json({ message: 'Appointment completed', result });
+    }
+     catch(err)
+     {
+        res.status(500).json({ error: err.message });
+     }
+    }

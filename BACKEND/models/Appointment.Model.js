@@ -1,6 +1,14 @@
 import db from '../DATABASE/Connection.js';
 const Appointment = {
   // Read a  appointment by ID
+    getById: async (id) => {
+        try {
+            const [rows] = await db.promise().query('SELECT * FROM appointments WHERE id = ?', [id]);
+            return rows[0]; // Return the appointment found
+        } catch (err) {
+            throw err;
+        }
+    },
     getAllByFreelancerId: async (freelancerId) => {
         try {
             const [rows] = await db.promise().query('SELECT * FROM appointments WHERE freelancer_id = ?', [freelancerId]);

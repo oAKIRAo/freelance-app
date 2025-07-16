@@ -15,6 +15,7 @@
     "@fullcalendar/interaction": "^6.1.18",
     "@fullcalendar/react": "^6.1.18",
     "@fullcalendar/timegrid": "^6.1.18",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-navigation-menu": "^1.2.13",
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",

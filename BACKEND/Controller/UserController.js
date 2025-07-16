@@ -49,7 +49,7 @@ export const updateUser = async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   };
-  export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
     try {
       const result = await User.delete(req.params.id);
       res.status(200).json({ message: 'User deleted', result });
@@ -57,3 +57,15 @@ export const updateUser = async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   };
+export const getUserByspecialty = async (req, res) => {
+   const { specialty } = req.query;
+    if (!specialty) {
+        return res.status(400).json({ message: 'Specialty is required' });
+      }
+    try {
+      const users = await User.searchFreelancerByspecialty(specialty);
+      res.status(200).json(users);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
