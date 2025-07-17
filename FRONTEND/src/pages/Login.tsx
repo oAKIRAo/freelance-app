@@ -71,7 +71,7 @@ const Login: React.FC = () => {
       <div className="mask gradient-custom-3 w-100 h-100 position-absolute top-0 start-0"></div>
       <MDBCard className="m-5 w-50" style={{ maxWidth: '500px', zIndex: 1 }}>
         <MDBCardBody className="px-5">
-          <h2 className="text-uppercase text-center mb-5">Login</h2>
+          <h2 className="login-heading ">Login</h2>
 
           <form onSubmit={handleSubmit}>
             <MDBInput

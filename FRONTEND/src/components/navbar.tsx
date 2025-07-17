@@ -24,8 +24,8 @@ const Navbar = () => {
          style={{background: 'linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1))',}}
 >        <div className="mx-auto flex max-w-7xl items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="text-sm font-semibold text-black cursor-pointer">
-            Logo
+          <Link to="/" className="text-2xl font-bold tracking-tight text-gray-900 hover:text-gray-700 transition duration-300">
+            kalender
           </Link>
 
           {/* Center nav menu */}

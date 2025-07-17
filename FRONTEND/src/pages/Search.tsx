@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import '../styles/searchResults.css';
 
@@ -14,6 +14,7 @@ interface User {
 
 const SearchResults = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const specialty = params.get('specialty') || '';
 
@@ -59,6 +60,15 @@ const SearchResults = () => {
     fetchResults();
   }, [specialty, token]);
 
+  // Generate default 7-day date range for the URL
+  const getDefaultDateRange = () => {
+    const today = new Date();
+    const endDate = new Date();
+    endDate.setDate(today.getDate() + 6);
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    return `${formatDate(today)},${formatDate(endDate)}`;
+  };
+
   return (
     <>
       <Navbar />
@@ -80,7 +90,15 @@ const SearchResults = () => {
               <p className="user-price">
                 <strong>Price per Hour:</strong> {user.price_per_hour ?? '-'}$
               </p>
-              <button className="view-planning-btn">View Planning</button>
+              <button
+                className="view-planning-btn"
+                onClick={() => {
+                  const dateRange = getDefaultDateRange();
+                  navigate(`/client/availability/${user.id}?dateRange=${dateRange}`);
+                }}
+              >
+                View Planning
+              </button>
             </div>
           ))}
         </div>

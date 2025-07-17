@@ -86,7 +86,7 @@ const Register: React.FC = () => {
       <div className="mask gradient-custom-3 w-100 h-100 position-absolute top-0 start-0"></div>
       <MDBCard className="m-5" style={{ maxWidth: '600px', zIndex: 1 }}>
         <MDBCardBody className="px-5">
-          <h2 className="text-uppercase text-center mb-5">Create an account</h2>
+          <h2 className="login-heading ">Create an account</h2>
 
           <form onSubmit={handleSubmit}>
             <MDBInput

@@ -1,5 +1,12 @@
 import PlanningFreelance from '../models/PlanningModel.js';
 import Appointment from '../models/Appointment.Model.js';
+import User from '../models/UserModel.js';
+
+// Utility to convert "HH:mm" to minutes
+const timeToMinutes = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+};
 
 export const createAppointment = async (req, res) => {
     try {
@@ -12,36 +19,36 @@ export const createAppointment = async (req, res) => {
         }
 
         const dayOfWeek = new Date(appointment_date).toLocaleDateString('en-US', { weekday: 'long' });
-
-        // check available slots for the freelancer on the requested day
         const planning = await PlanningFreelance.getPlanningByDay(freelancer_id, dayOfWeek);
 
         if (!planning || planning.length === 0) {
             return res.status(400).json({ message: 'Freelancer is not available on this day' });
         }
 
-        // Check if requested time fits within any available slot
-        const isWithinAvailability = planning.some(slot =>
-            start_time >= slot.start_time && end_time <= slot.end_time
-        );
+        const requestedStart = timeToMinutes(start_time);
+        const requestedEnd = timeToMinutes(end_time);
+
+        const isWithinAvailability = planning.some(slot => {
+            const slotStart = timeToMinutes(slot.start_time);
+            const slotEnd = timeToMinutes(slot.end_time);
+            return requestedStart >= slotStart && requestedEnd <= slotEnd;
+        });
 
         if (!isWithinAvailability) {
             return res.status(400).json({ message: 'Appointment time must respect freelancer availability' });
         }
 
-        // Get existing appointments for that freelancer on that date
         const existingAppointments = await Appointment.getByFreelancerAndDate(freelancer_id, appointment_date);
+        const hasOverlap = existingAppointments.some(app => {
+            const existingStart = timeToMinutes(app.start_time);
+            const existingEnd = timeToMinutes(app.end_time);
+            return requestedStart < existingEnd && existingStart < requestedEnd;
+        });
 
-        // Check for overlapping appointments
-        const hasOverlap = existingAppointments.some(app =>
-            (start_time < app.end_time) && (app.start_time < end_time)
-        );
-
-        if (hasOverlap) {
+        if (hasOverlap ) {
             return res.status(400).json({ message: 'Appointment time overlaps with an existing appointment' });
         }
 
-        // Create the appointment
         const appointment = {
             freelancer_id,
             client_id,
@@ -57,31 +64,84 @@ export const createAppointment = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
 export const CancelAppointment = async (req, res) => {
     try {
         const appointmentId = req.params.id;
         const appointment = await Appointment.getById(appointmentId);
-        if (appointment.status !== 'booked') {
+
+        if (!appointment || appointment.status !== 'booked') {
             return res.status(400).json({ message: 'Only booked appointments can be canceled' });
         }
+
         const result = await Appointment.cancelById(appointmentId);
         res.status(200).json({ message: 'Appointment canceled', result });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
+
 export const CompleteAppointment = async (req, res) => {
-    try{
+    try {
         const appointmentId = req.params.id;
         const appointment = await Appointment.getById(appointmentId);
-        if (appointment.status !== 'booked') {
+
+        if (!appointment || appointment.status !== 'booked') {
             return res.status(400).json({ message: 'Only booked appointments can be completed' });
         }
+
         const result = await Appointment.completeById(appointmentId);
         res.status(200).json({ message: 'Appointment completed', result });
-    }
-     catch(err)
-     {
+    } catch (err) {
         res.status(500).json({ error: err.message });
-     }
     }
+};
+export const getAllAppointmentsByFreelancer = async (req, res) => {
+    try {
+        const freelancerId = req.user.id;
+        if (!freelancerId) {
+            return res.status(400).json({ message: 'Freelancer ID is required' });
+        };
+        const appointments = await Appointment.getAllByFreelancerId(freelancerId);
+        //fetch the data of the client that has the appointment with the freelancer
+        const clientPromises = appointments.map(async (appointment) => {
+            const client = await User.getById(appointment.client_id);
+            return {
+                client_name: client.name,
+                client_email: client.email,
+                date : appointment.appointment_date,
+                start_time: appointment.start_time,
+                end_time: appointment.end_time,
+            };
+        });
+        const clients = await Promise.all(clientPromises);
+        res.status(200).json(clients);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+export const getAllApointementsByClient = async (req, res) => {
+    try {
+        cleind_id = req.user.id;
+        if (!client_id) {
+            return res.status(400).json({ message: 'Client ID is required' });
+        }
+        const appointments = await Appointment.getAllByClientId(client_id);
+
+        const freelancerPromises = appointments.map(async (appointment) => {
+            const freelancer = await User.getById(appointment.freelancer_id);
+            return {
+                freelancer_name: freelancer.name,
+                freelancer_email: freelancer.email,
+                date: appointment.appointment_date,
+                start_time: appointment.start_time,
+                end_time: appointment.end_time,
+            };
+        });
+        const freelancers = await Promise.all(freelancerPromises);
+        res.status(200).json(freelancers);
+        
+
+    }catch(err) {
+        res.status(500).json({ error: err.message });
+    }};

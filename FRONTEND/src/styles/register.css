@@ -4,6 +4,9 @@
 
 .gradient-custom-4 {
   background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1));
+  /*remove the effect when the cursor is over a button*/
+  transform: none !important;
+  transition: none !important;
 }
 .card-wrapper {
   height: auto !important;
@@ -28,4 +31,15 @@ a.text-decoration-none:hover {
 .form-outline .fa-eye,
 .form-outline .fa-eye-slash {
   display: none !important;
+}
+.login-heading {
+    font-size: 2.5rem; /* Adjust the size as you like */
+    font-weight: 700;
+    background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
 }
