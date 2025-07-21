@@ -50,3 +50,21 @@
   border-color: #68d391; /* Tailwind's green-400 */
   box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.5);
 }
+.gradient-btn {
+  padding: 12px 24px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #7fffd4 0%, #87cefa 100%);
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s ease;
+  display: inline-block;
+  text-align: center;
+}
+
+.gradient-btn:hover {
+  opacity: 0.85;
+}
+

@@ -103,15 +103,18 @@ export const getAllAppointmentsByFreelancer = async (req, res) => {
             return res.status(400).json({ message: 'Freelancer ID is required' });
         };
         const appointments = await Appointment.getAllByFreelancerId(freelancerId);
+        const bookedAppointments = appointments.filter(app => app.status === 'booked' );
         //fetch the data of the client that has the appointment with the freelancer
-        const clientPromises = appointments.map(async (appointment) => {
+        const clientPromises = bookedAppointments.map(async (appointment) => {
             const client = await User.getById(appointment.client_id);
             return {
+                id: appointment.id,
                 client_name: client.name,
                 client_email: client.email,
                 date : appointment.appointment_date,
                 start_time: appointment.start_time,
                 end_time: appointment.end_time,
+                status: appointment.status , 
             };
         });
         const clients = await Promise.all(clientPromises);
@@ -122,20 +125,23 @@ export const getAllAppointmentsByFreelancer = async (req, res) => {
 };
 export const getAllApointementsByClient = async (req, res) => {
     try {
-        cleind_id = req.user.id;
+         const client_id = req.user.id;
         if (!client_id) {
             return res.status(400).json({ message: 'Client ID is required' });
         }
         const appointments = await Appointment.getAllByClientId(client_id);
+        const bookedAppointments = appointments.filter(app => app.status === 'booked' );
 
-        const freelancerPromises = appointments.map(async (appointment) => {
+        const freelancerPromises = bookedAppointments.map(async (appointment) => {
             const freelancer = await User.getById(appointment.freelancer_id);
             return {
+                id: appointment.id,
                 freelancer_name: freelancer.name,
                 freelancer_email: freelancer.email,
                 date: appointment.appointment_date,
                 start_time: appointment.start_time,
                 end_time: appointment.end_time,
+                status: appointment.status,
             };
         });
         const freelancers = await Promise.all(freelancerPromises);

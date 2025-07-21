@@ -1,6 +1,6 @@
 import PlanningFreelance from "../models/PlanningModel.js";
 
-// Get all planning for freelancers
+// Get all planning with freelancers ID
 export const getPlanningByid = async (req, res) => {
   try {
     const planning = await PlanningFreelance.getPlanningByid(req.params.id);// id utliser ici est l'id du freelancer connecté et pas l'id du planning
@@ -12,6 +12,20 @@ export const getPlanningByid = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 }
+//get all plannings for a freelancer
+export const getAllPlannings = async (req, res) => {
+  try{
+     const freelancerId = req.user.id;
+    const plannings = await PlanningFreelance.getPlanningByid(freelancerId);
+    if (plannings.length === 0) {
+      return res.status(404).json({ message: 'No planning found for this freelancer' });
+    }
+    res.status(200).json(plannings);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+
+  }}
 // Create a new planning for a freelancer
 export const createPlanning = async(req,res) => {
     try{
@@ -44,7 +58,7 @@ export const deletePlanningById = async (req, res) => {
 // Update a planning by ID
 export const updatePlanningById = async (req, res) => {
   try{
-    const { id } = req.params;
+    const { id } = req.user.id;
     const fieldsToUpdate = req.body;
 
     if (!fieldsToUpdate || Object.keys(fieldsToUpdate).length === 0) {

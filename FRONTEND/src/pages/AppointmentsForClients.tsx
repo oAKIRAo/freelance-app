@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../components/navbar";
-import { Check, X, AlertCircle } from "lucide-react";
+import { X, Check, AlertCircle } from "lucide-react";
 import "../styles/FreelancerAppointments.css";
 
 interface Appointment {
   id: string;
-  client_name: string;
-  client_email: string;
+  freelancer_name: string;
+  freelancer_email: string;
   date: string;
   start_time: string;
   end_time: string;
   status?: "completed" | "cancelled" | "upcoming";
 }
 
-export default function FreelancerAppointments() {
+export default function ClientAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,24 +23,16 @@ export default function FreelancerAppointments() {
     try {
       setLoading(true);
       setError(null);
-
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/appointment/freelancer/appointments`,
+        `${import.meta.env.VITE_API_URL}/api/appointment/client/appointments`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
-
       const data = res.data;
-      if (Array.isArray(data)) {
-        setAppointments(data);
-      } else if (Array.isArray(data.appointments)) {
-        setAppointments(data.appointments);
-      } else {
-        setAppointments([]);
-      }
+      setAppointments(Array.isArray(data) ? data : data.appointments || []);
     } catch (error) {
       console.error("Error fetching appointments:", error);
       setError("Failed to fetch appointments. Please try again.");
@@ -50,35 +42,25 @@ export default function FreelancerAppointments() {
     }
   };
 
-  const updateStatus = async (
-    appointmentId: string,
-    status: "completed" | "cancelled"
-  ) => {
+  const updateStatus = async (appointmentId: string, status: "cancelled") => {
     try {
-      // Optimistic UI update
       setAppointments((prev) =>
         prev.map((app) =>
           app.id === appointmentId ? { ...app, status } : app
         )
       );
 
-      // Select endpoint based on status
-      const endpoint =
-        status === "completed"
-          ? `${import.meta.env.VITE_API_URL}/api/appointment/${appointmentId}/complete`
-          : `${import.meta.env.VITE_API_URL}/api/appointment/${appointmentId}/cancel`;
+      const endpoint = `${import.meta.env.VITE_API_URL}/api/appointment/${appointmentId}/cancel`;
 
-      // No request body needed
       await axios.patch(endpoint, null, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
     } catch (error) {
-      console.error("Failed to update appointment status:", error);
-      // Revert optimistic update by refetching
+      console.error("Failed to cancel appointment:", error);
       fetchAppointments();
-      setError("Failed to update appointment status. Please try again.");
+      setError("Failed to cancel appointment. Please try again.");
     }
   };
 
@@ -124,11 +106,11 @@ export default function FreelancerAppointments() {
             {appointments.map((app) => (
               <div className="appointment-card" key={app.id}>
                 <div className="card-header">
-                  <h2 className="client-name">{app.client_name}</h2>
+                  <h2 className="client-name">{app.freelancer_name}</h2>
                   <StatusBadge status={app.status || "upcoming"} />
                 </div>
 
-                <p className="client-email">{app.client_email}</p>
+                <p className="client-email">{app.freelancer_email}</p>
 
                 <div className="appointment-details">
                   <div>
@@ -145,16 +127,6 @@ export default function FreelancerAppointments() {
                 </div>
 
                 <div className="card-actions">
-                  {app.status !== "completed" && (
-                    <button
-                      onClick={() => updateStatus(app.id, "completed")}
-                      className="btn-complete"
-                      aria-label="Mark as completed"
-                    >
-                      <Check className="btn-icon" />
-                      Complete
-                    </button>
-                  )}
                   {app.status !== "cancelled" && (
                     <button
                       onClick={() => updateStatus(app.id, "cancelled")}

@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import '../styles/register.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import { motion, AnimatePresence } from 'framer-motion';  
+import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import {
@@ -23,6 +24,7 @@ interface FormState {
 }
 
 const Register: React.FC = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState<FormState>({
     name: '',
     email: '',
@@ -64,6 +66,7 @@ const Register: React.FC = () => {
       const data = await res.json();
       if (res.ok) {
         setMessage('You registered successfully!');
+        navigate('/login');
       } else {
         setMessage(data.message || data.error || 'Registration failed');
       }

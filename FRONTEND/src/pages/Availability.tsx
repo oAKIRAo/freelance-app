@@ -7,6 +7,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate, useParams } from 'react-router-dom';
+import Navbar from '@/components/navbar';
 import '../styles/AvailabilityForm.css';
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -213,7 +214,9 @@ function AvailabilityForm() {
   };
 
   return (
-    <div className="availability-container" style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem', backgroundColor: '#f7fafc', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+    <>
+      <Navbar />
+     <div className="availability-container" style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem', backgroundColor: '#f7fafc', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
       {isCheckingAuth ? (
         <div>Loading...</div>
       ) : (
@@ -320,7 +323,8 @@ function AvailabilityForm() {
           )}
         </>
       )}
-    </div>
+     </div>
+    </> 
   );
 }
 
