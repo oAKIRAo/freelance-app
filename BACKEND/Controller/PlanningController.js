@@ -1,6 +1,6 @@
 import PlanningFreelance from "../models/PlanningModel.js";
 
-// Get all planning with freelancers ID
+// Get a planning with freelancers ID
 export const getPlanningByid = async (req, res) => {
   try {
     const planning = await PlanningFreelance.getPlanningByid(req.params.id);// id utliser ici est l'id du freelancer connecté et pas l'id du planning
@@ -12,13 +12,13 @@ export const getPlanningByid = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 }
-//get all plannings for a freelancer
+//freelancer can view his planning
 export const getAllPlannings = async (req, res) => {
   try{
      const freelancerId = req.user.id;
     const plannings = await PlanningFreelance.getPlanningByid(freelancerId);
     if (plannings.length === 0) {
-      return res.status(404).json({ message: 'No planning found for this freelancer' });
+      console.log("No planning found for the freelancer")
     }
     res.status(200).json(plannings);
 

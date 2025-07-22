@@ -1,48 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {  User } from 'lucide-react';
+import { User } from 'lucide-react';
+import { decodeToken } from '../lib/decodeToken';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [role, setRole] = useState<string | null>(null);
-
-  // Function to decode JWT token
-  const decodeToken = (token: string) => {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      return null;
-    }
-  };
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    
-    console.log('Debug: Token from localStorage:', token);
-
     if (token) {
       const decodedToken = decodeToken(token);
-      console.log('Debug: Decoded token:', decodedToken);
-      
       if (decodedToken && decodedToken.role) {
         setIsAuthenticated(true);
         setRole(decodedToken.role);
-        console.log('Debug: Role from token:', decodedToken.role);
       } else {
-        // Token is invalid or doesn't contain role
         setIsAuthenticated(false);
         setRole(null);
-        localStorage.removeItem('token'); // Clean up invalid token
+        localStorage.removeItem('token');
       }
     } else {
       setIsAuthenticated(false);
@@ -50,30 +27,44 @@ const Navbar = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-container')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   const handleLogout = () => {
-    console.log('Debug: Logging out, clearing token from localStorage');
     localStorage.removeItem('token');
-    localStorage.removeItem('role'); // Clean up role too, if it exists
+    localStorage.removeItem('role');
     setIsAuthenticated(false);
     setRole(null);
     navigate('/');
   };
+
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log('Debug: Home clicked');
     if (!isAuthenticated) {
       navigate('/login');
     } else if (role === 'freelancer') {
       navigate('/freelancer/home');
     } else if (role === 'client') {
-      navigate('/');}}
+      navigate('/');
+    }
+  };
+
   const handleAppointmentsClick = (e: React.MouseEvent) => {
     e.preventDefault();
-
-    console.log('Debug: Appointments clicked');
-    console.log('Debug: isAuthenticated:', isAuthenticated);
-    console.log('Debug: role:', role);
-
     if (!isAuthenticated) {
       navigate('/login');
     } else if (role === 'freelancer') {
@@ -83,6 +74,18 @@ const Navbar = () => {
     } else {
       navigate('/');
     }
+  };
+  const handleAboutUsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/about-us');
+  }
+  const handleContactUsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/contact-us');
+  };
+
+  const handleUserIconClick = () => {
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   return (
@@ -114,15 +117,14 @@ const Navbar = () => {
             }}
           >
             <li style={{ marginRight: '1.5rem', cursor: 'pointer' }} onClick={handleHomeClick}>Home</li>
-            <li style={{ marginRight: '1.5rem', cursor: 'pointer' }}>About Us</li>
-            <li style={{ marginRight: '1.5rem', cursor: 'pointer' }}>Services</li>
+            <li style={{ marginRight: '1.5rem', cursor: 'pointer' }}onClick={handleAboutUsClick}>About Us</li>
             <li
               style={{ marginRight: '1.5rem', cursor: 'pointer' }}
               onClick={handleAppointmentsClick}
             >
               Appointments
             </li>
-            <li style={{ cursor: 'pointer' }}>Contact Me</li>
+            <li style={{ cursor: 'pointer' }}onClick={handleContactUsClick}>Contact Us</li>
           </ul>
 
           <div className="flex items-center gap-4">
@@ -140,18 +142,47 @@ const Navbar = () => {
                 >
                   Register
                 </Link>
-                <User size={18} className="text-black cursor-pointer" />
               </>
             ) : (
-              <>
-                <button
-                  onClick={handleLogout}
-                  className="text-black hover:text-gray-600 text-sm cursor-pointer bg-transparent border-none p-0"
-                >
-                  Logout
-                </button>
-                <User size={18} className="text-black cursor-pointer" />
-              </>
+              <div className="relative dropdown-container" style={{ marginRight: '6rem' }}>
+                <div className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black hover:bg-opacity-10 transition-colors duration-200">
+                  <User
+                    size={18}
+                    className="text-black cursor-pointer -translate-x-1"
+                    onClick={handleUserIconClick}
+                  />
+                </div>
+                {isDropdownOpen && (
+                  <div 
+                    className="absolute right-0 mt-2 w-40 rounded-lg shadow-md border overflow-visible"
+                    style={{ 
+                      zIndex: 9999,
+                      background: 'linear-gradient(to right, rgba(132, 250, 176, 0.4), rgba(143, 211, 244, 0.4))',
+                      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+                      color: '#000'
+                    }}
+                  >
+                    <div className="py-1">
+                      <Link
+                        to="/update-profile"
+                        className="block px-4 py-2 text-sm hover:bg-black hover:bg-opacity-10 transition-colors duration-150"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        Modify Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full text-left block px-4 py-2 text-sm hover:bg-black hover:bg-opacity-10 transition-colors duration-150"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -159,6 +190,5 @@ const Navbar = () => {
     </div>
   );
 };
-
 
 export default Navbar;

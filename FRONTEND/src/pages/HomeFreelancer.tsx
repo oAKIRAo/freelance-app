@@ -20,7 +20,6 @@ const FreelancerHome = () => {
         <p className="home-subtitle">
           Manage your planning, organize your appointments, and control your schedule.
         </p>
-
         <button 
           onClick={handleCreatePlanning} 
           className="gradient-btn"

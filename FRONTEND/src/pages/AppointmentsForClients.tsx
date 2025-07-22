@@ -3,6 +3,8 @@ import axios from "axios";
 import Navbar from "../components/navbar";
 import { X, Check, AlertCircle } from "lucide-react";
 import "../styles/FreelancerAppointments.css";
+import { decodeToken } from "@/lib/decodeToken";
+import AccessDenied from "../components/AccesDenied"; // Add this or replace with your own access denied UI
 
 interface Appointment {
   id: string;
@@ -18,6 +20,8 @@ export default function ClientAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   const fetchAppointments = async () => {
     try {
@@ -65,8 +69,46 @@ export default function ClientAppointments() {
   };
 
   useEffect(() => {
-    fetchAppointments();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setAccessDenied(true);
+      setCheckingAuth(false);
+      return;
+    }
+    try {
+      const decoded = decodeToken(token);
+      if (decoded?.role !== "client") {
+        setAccessDenied(true);
+      } else {
+        fetchAppointments();
+      }
+    } catch (err) {
+      setAccessDenied(true);
+    } finally {
+      setCheckingAuth(false);
+    }
   }, []);
+
+  if (checkingAuth) {
+    return (
+      <>
+        <Navbar />
+        <div className="appointments-container">
+          <div className="appointments-wrapper">
+            <div className="loading-spinner">Checking authentication...</div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <>
+        <AccessDenied />
+      </>
+    );
+  }
 
   if (loading) {
     return (

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
+import AccessDenied from '../components/AccesDenied'; 
+import { decodeToken } from '../lib/decodeToken'; 
 import '../styles/searchResults.css';
 
 interface User {
@@ -21,11 +23,26 @@ const SearchResults = () => {
   const [results, setResults] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const [role, setRole] = useState<string | null>(null);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    if (!specialty) return;
+    if (!token) {
+      setRole(null);
+      return;
+    }
+
+    const decoded = decodeToken(token);
+    if (!decoded || !decoded.role) {
+      setRole(null);
+      localStorage.removeItem('token'); // Clean bad tokens
+    } else {
+      setRole(decoded.role);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!specialty || !token || role !== 'client') return;
 
     const fetchResults = async () => {
       setLoading(true);
@@ -58,9 +75,8 @@ const SearchResults = () => {
     };
 
     fetchResults();
-  }, [specialty, token]);
+  }, [specialty, token, role]);
 
-  // Generate default 7-day date range for the URL
   const getDefaultDateRange = () => {
     const today = new Date();
     const endDate = new Date();
@@ -68,6 +84,10 @@ const SearchResults = () => {
     const formatDate = (date: Date) => date.toISOString().split('T')[0];
     return `${formatDate(today)},${formatDate(endDate)}`;
   };
+
+  if (!token || role !== 'client') {
+    return <AccessDenied />;
+  }
 
   return (
     <>

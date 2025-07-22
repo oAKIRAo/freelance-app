@@ -1,5 +1,5 @@
 import PlanningFreelance from '../models/PlanningModel.js';
-import Appointment from '../models/Appointment.Model.js';
+import Appointment from '../models/AppointmentModel.js';
 import User from '../models/UserModel.js';
 
 // Utility to convert "HH:mm" to minutes
@@ -7,7 +7,7 @@ const timeToMinutes = (time) => {
     const [hours, minutes] = time.split(':').map(Number);
     return hours * 60 + minutes;
 };
-
+//To Create an appointment
 export const createAppointment = async (req, res) => {
     try {
         const client_id = req.user.id;

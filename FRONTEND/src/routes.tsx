@@ -10,6 +10,9 @@ import FreelancerAppointments from './pages/AppointmentsForFreelancer';
 import ClientAppointments from './pages/AppointmentsForClients';
 import FreelancerPlanning from './pages/Planning';
 import FreelancerHome from './pages/HomeFreelancer';
+import UpdateProfile from './pages/UpdateProfil';
+import AboutUs from './pages/AboutUs';
+import ContactUs from './pages/ContactUs';
 
 export default function AppRoutes() {
   return (
@@ -26,7 +29,9 @@ export default function AppRoutes() {
         <Route path="/freelancer/appointments" element={<FreelancerAppointments />} />
         <Route path="/client/appointments" element={<ClientAppointments />} />
         <Route path="/freelancer/planning" element={<FreelancerPlanning />} />
-        {/* Add other routes as needed */}
+        <Route path="/update-profile" element={<UpdateProfile />} />
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/contact-us" element={<ContactUs />} />
       </Routes>
     </Router>
   );

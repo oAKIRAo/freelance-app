@@ -2,6 +2,8 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import '../styles/adminDashboard.css';
+import { decodeToken } from '@/lib/decodeToken';
+import AccessDenied from '@/components/AccesDenied';
 
 interface User {
   id: number;
@@ -40,16 +42,29 @@ const AdminDashboard: React.FC = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);  // NEW: track auth check
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const [accessDenied, setAccessDenied] = useState(false);
 
-  useEffect(() => {
-    if (!token) {
-      navigate('/login');
-    } else {
+useEffect(() => {
+  if (!token) {
+    // No token → access denied
+    setAccessDenied(true);
+    setIsCheckingAuth(false);
+  } else {
+    try {
+      const decoded = decodeToken(token);
+      if (!decoded || decoded.role !== 'admin') {
+        setAccessDenied(true);
+      } else {
+        fetchUsers();
+      }
+    } catch {
+      setAccessDenied(true);
+    } finally {
       setIsCheckingAuth(false);
-      fetchUsers();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, navigate]);
+  }
+ }, [token]);
+
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -164,6 +179,10 @@ const AdminDashboard: React.FC = () => {
   // Show loading UI while checking auth (avoid flicker)
   if (isCheckingAuth) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+  }
+  // Show access denied message if user is not admin
+  if (accessDenied) {
+    return <AccessDenied />;
   }
 
   return (

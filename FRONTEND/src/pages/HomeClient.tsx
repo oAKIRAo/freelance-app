@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Footer from '@/components/Footer';
 import Navbar from '../components/navbar';
 import '../styles/home.css'; 
 
@@ -35,6 +36,7 @@ const Home = () => {
           />
         </form>
       </div>
+      <Footer />
     </>
   );
 };

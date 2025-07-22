@@ -114,7 +114,58 @@ const Appointment = {
         return rows;
     } catch (err) {
         throw err;
-    }}
+    }},
+ // Total Appointments
+     CountTotalAppointments : async () => {
+    try {
+        const [rows] = await db.promise().query(
+            "SELECT COUNT(*) AS count FROM appointments"
+        );
+        return rows[0].count;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+},
+
+// Completed Appointments
+    CountCompletedAppointments : async () => {
+    try {
+        const [rows] = await db.promise().query(
+            "SELECT COUNT(*) AS count FROM appointments WHERE status = 'completed'"
+        );
+        return rows[0].count;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+},
+
+// Canceled Appointments
+    CountCancelledAppointments : async () => {
+    try {
+        const [rows] = await db.promise().query(
+            "SELECT COUNT(*) AS count FROM appointments WHERE status = 'canceled'"
+        );
+        return rows[0].count;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+},
+
+// In-Progress Appointments
+     CountInProgressAppointments : async () => {
+    try {
+        const [rows] = await db.promise().query(
+            "SELECT COUNT(*) AS count FROM appointments WHERE status = 'booked'"
+        );
+        return rows[0].count;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
 
 };
   

@@ -1,12 +1,10 @@
-/* home.css */
-
-.home-container {
+.update-profile-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 64px);
-  padding: 1rem 1rem;
+  min-height: calc(100vh - 64px); /* same as home for navbar */
+  padding: 1rem;
   background: linear-gradient(
     to right,
     rgba(132, 250, 176, 0.4),
@@ -15,43 +13,47 @@
   text-align: center;
 }
 
-.home-title {
-  font-size: 2.5rem; 
+.update-profile-title {
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #2d3748; 
+  color: #2d3748;
   margin-bottom: 1rem;
 }
 
-.home-subtitle {
-  color: #4a5568; 
-  font-size: 1.125rem; 
+.update-profile-subtitle {
+  color: #4a5568;
+  font-size: 1.125rem;
   margin-bottom: 2rem;
-  max-width: 40rem; 
+  max-width: 40rem;
   line-height: 1.5;
 }
 
-.home-form {
+.update-profile-form {
   width: 100%;
-  max-width: 28rem; /* ~448px */
+  max-width: 28rem;
+  text-align: left;
+  margin: 0 auto;
 }
 
-.home-search-input {
+.update-profile-input {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem; 
+  border-radius: 0.5rem;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
   font-size: 1rem;
   outline: none;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  margin-bottom: 1rem;
 }
 
-.home-search-input:focus {
-  border-color: #68d391; 
+.update-profile-input:focus {
+  border-color: #68d391;
   box-shadow: 0 0 0 3px rgba(104, 211, 145, 0.5);
 }
+
 .gradient-btn {
-  padding: 10px 24px;
+  padding: 12px 24px;
   border-radius: 9999px;
   background: linear-gradient(90deg, #7fffd4 0%, #87cefa 100%);
   color: #333;
@@ -62,11 +64,21 @@
   transition: opacity 0.2s ease;
   display: inline-block;
   text-align: center;
-  width: auto;
-  max-width: 300px; 
+  width: 100%;
 }
 
 .gradient-btn:hover {
   opacity: 0.85;
 }
 
+.error-text {
+  color: #e53e3e;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.success-text {
+  color: #38a169;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}

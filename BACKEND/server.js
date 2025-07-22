@@ -4,6 +4,7 @@ import AuthRoutes from './routes/AuthRoutes.js';
 import PlaninngRoutes from './routes/PlanningRoutes.js';
 import AppointmentRoutes from './routes/AppointmentRoutes.js';
 import AvailabilityRoutes from './routes/AvailabilityRoutes.js';
+import AnalyticsRoutes from './routes/AnalyticsRoutes.js'
 import dotenv from 'dotenv';
 import './DATABASE/init.js'
 import cors from 'cors';
@@ -25,6 +26,7 @@ app.use('/api/auth',AuthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/planning', PlaninngRoutes);
 app.use('/api/appointment', AppointmentRoutes);
+app.use('/api/admin',AnalyticsRoutes);
 app.use('/uploads/profile_pictures', express.static('uploads/profile_pictures'));
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

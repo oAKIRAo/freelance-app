@@ -1,5 +1,5 @@
 import PlanningFreelance from "../models/PlanningModel.js";
-import Appointment from "../models/Appointment.Model.js"// Assuming this is a utility function you created
+import Appointment from "../models/AppointmentModel.js"// Assuming this is a utility function you created
 import { calculateFreeSlots } from "../utils/calculateFreeSlots.js"; // Assuming this is a utility function you created
 export const getAvailableSlots = async (req, res) =>{
     const freelancerId = req.params.freelancerId;

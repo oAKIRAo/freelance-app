@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import FullCalendar from '@fullcalendar/react';
 import { EventInput } from '@fullcalendar/core';
@@ -8,25 +8,15 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '@/components/navbar';
+import { decodeToken } from '@/lib/decodeToken';
+import AccessDenied from '@/components/AccesDenied';
 import '../styles/AvailabilityForm.css';
-
-const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 interface AvailabilitySlot {
   date: string;
   startTime?: string;
   endTime?: string;
 }
-
-/*function formatTime(time24?: string): string {
-  if (!time24) return '';
-  const [hourStr, minuteStr] = time24.split(':');
-  let hour = parseInt(hourStr, 10);
-  const minute = parseInt(minuteStr, 10);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  hour = hour % 12 || 12;
-  return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
-}*/
 
 function AvailabilityForm() {
   const { freelancerId } = useParams<{ freelancerId: string }>();
@@ -35,7 +25,10 @@ function AvailabilityForm() {
   const [message, setMessage] = useState<string>('');
   const [calendarView, setCalendarView] = useState<string>('dayGridWeek');
   const navigate = useNavigate();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Auth states
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
   const token = localStorage.getItem('token');
 
   // Popup state
@@ -45,12 +38,23 @@ function AvailabilityForm() {
 
   useEffect(() => {
     if (!token) {
-      navigate('/login');
-    } else {
-      setIsCheckingAuth(false);
+      setAccessDenied(true);
+      setCheckingAuth(false);
+      return;
     }
-  }, [token, navigate]);
+    try {
+      const decoded = decodeToken(token);
+      if (decoded?.role !== 'client') {  // Adjust the role check as needed
+        setAccessDenied(true);
+      }
+    } catch {
+      setAccessDenied(true);
+    } finally {
+      setCheckingAuth(false);
+    }
+  }, []);
 
+  // Helper to get current week's date range
   const getDateRange = () => {
     const today = new Date();
     const endDate = new Date();
@@ -93,6 +97,7 @@ function AvailabilityForm() {
     }
   };
 
+  // Update dateRange at midnight
   useEffect(() => {
     const updateRangeAtMidnight = () => {
       const now = new Date();
@@ -117,9 +122,10 @@ function AvailabilityForm() {
     updateRangeAtMidnight();
   }, []);
 
+  // Fetch availability after auth check passes
   useEffect(() => {
     async function fetchAvailability() {
-      if (!freelancerId || !token) return;
+      if (!freelancerId || !token || accessDenied || checkingAuth) return;
       const id = Number(freelancerId);
       if (isNaN(id)) {
         setMessage('Invalid freelancer ID.');
@@ -147,7 +153,7 @@ function AvailabilityForm() {
       }
     }
     fetchAvailability();
-  }, [freelancerId, token, dateRange, navigate, calendarView]);
+  }, [freelancerId, token, dateRange, navigate, calendarView, accessDenied, checkingAuth]);
 
   const handleEventClick = (clickInfo: EventClickArg) => {
     const event = clickInfo.event;
@@ -156,8 +162,8 @@ function AvailabilityForm() {
     if (!start || !end) return;
 
     const date = start.toISOString().split('T')[0];
-    const startTime = start.toTimeString().slice(0,5);
-    const endTime = end.toTimeString().slice(0,5);
+    const startTime = start.toTimeString().slice(0, 5);
+    const endTime = end.toTimeString().slice(0, 5);
 
     setSelectedSlot({ date, startTime, endTime });
     setPopupMessage('');
@@ -167,7 +173,7 @@ function AvailabilityForm() {
   const handleConfirmBooking = async () => {
     if (!selectedSlot || !token || !freelancerId) return;
     try {
-      await fetch(
+      const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/appointment/create/${freelancerId}`,
         {
           method: 'POST',
@@ -181,26 +187,26 @@ function AvailabilityForm() {
             end_time: selectedSlot.endTime,
           }),
         }
-      ).then(async (res) => {
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || 'Booking failed');
-        }
-      });
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Booking failed');
+      }
 
       setPopupMessage('Availability successfully booked!');
       setIsPopupOpen(false);
 
       // Refresh availabilities after booking
-      const res = await axios.get<AvailabilitySlot[]>(
+      const refreshRes = await axios.get<AvailabilitySlot[]>(
         `${import.meta.env.VITE_API_URL}/api/availability/${freelancerId}/available-slots`,
         {
           headers: { Authorization: `Bearer ${token}` },
           params: { dateRange: dateRange.rangeString },
         }
       );
-      setAvailabilities(res.data);
-      setEvents(mapToCalendarEvents(res.data, calendarView));
+      setAvailabilities(refreshRes.data);
+      setEvents(mapToCalendarEvents(refreshRes.data, calendarView));
     } catch (error: any) {
       console.error(error);
       setPopupMessage(error.message || 'Failed to book availability.');
@@ -213,118 +219,153 @@ function AvailabilityForm() {
     setPopupMessage('');
   };
 
+  if (checkingAuth) {
+    return (
+      <>
+        <Navbar />
+        <div className="availability-container" style={{ textAlign: 'center', marginTop: '2rem' }}>
+          Checking authentication...
+        </div>
+      </>
+    );
+  }
+
+  if (accessDenied) {
+    return <AccessDenied />;
+  }
+
   return (
     <>
       <Navbar />
-     <div className="availability-container" style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem', backgroundColor: '#f7fafc', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-      {isCheckingAuth ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          <div className="calendar-container" style={{ maxHeight: '650px', overflowY: 'auto', borderRadius: '8px', border: '1px solid #ddd' }}>
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView={calendarView}
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay',
-              }}
-              events={events}
-              eventClick={handleEventClick}
-              height="auto"
-              nowIndicator={true}
-              editable={false}
-              selectable={true}
-              weekends={true}
-              dayMaxEvents={true}
-              eventTimeFormat={
-                calendarView === 'dayGridMonth'
-                  ? undefined
-                  : { hour: 'numeric', minute: '2-digit', meridiem: true }
-              }
-            />
-          </div>
+      <div
+        className="availability-container"
+        style={{
+          maxWidth: '900px',
+          margin: '2rem auto',
+          padding: '1rem',
+          backgroundColor: '#f7fafc',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
+        <div
+          className="calendar-container"
+          style={{
+            maxHeight: '650px',
+            overflowY: 'auto',
+            borderRadius: '8px',
+            border: '1px solid #ddd',
+          }}
+        >
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView={calendarView}
+            headerToolbar={{
+              left: 'prev,next today',
+              center: 'title',
+              right: 'dayGridMonth,timeGridWeek,timeGridDay',
+            }}
+            events={events}
+            eventClick={handleEventClick}
+            height="auto"
+            nowIndicator={true}
+            editable={false}
+            selectable={true}
+            weekends={true}
+            dayMaxEvents={true}
+            eventTimeFormat={
+              calendarView === 'dayGridMonth'
+                ? undefined
+                : { hour: 'numeric', minute: '2-digit', meridiem: true }
+            }
+            datesSet={(info) => setCalendarView(info.view.type)}
+          />
+        </div>
 
-          {/* Booking Popup */}
-          {isPopupOpen && selectedSlot && (
-            <div className="popup-overlay" style={{
+        {/* Booking Popup */}
+        {isPopupOpen && selectedSlot && (
+          <div
+            className="popup-overlay"
+            style={{
               position: 'fixed',
-              top: 0, left: 0, right: 0, bottom: 0,
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
               backgroundColor: 'rgba(0, 0, 0, 0.5)',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
               zIndex: 1000,
-            }}>
-              <div className="popup-content" style={{
+            }}
+          >
+            <div
+              className="popup-content"
+              style={{
                 backgroundColor: 'white',
                 padding: '2rem',
                 borderRadius: '8px',
-                width: '90%',
                 maxWidth: '400px',
-                boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
-                textAlign: 'center',
-              }}>
-                <h3 style={{ marginBottom: '1rem' }}>Confirm Booking</h3>
-                <p style={{ marginBottom: '1rem' }}>
-                  Date: <strong>{selectedSlot.date}</strong><br />
-                  Time: <strong>{selectedSlot.startTime} - {selectedSlot.endTime}</strong>
-                </p>
-                {popupMessage && <p className="popup-message" style={{ marginBottom: '1rem', color: 'green' }}>{popupMessage}</p>}
-                <button
-                  onClick={handleConfirmBooking}
-                  className="confirm-btn"
-                  style={{
-                    backgroundColor: '#4caf50',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.5rem 1.5rem',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    marginRight: '1rem',
-                    fontWeight: '600',
-                  }}
-                >
-                  Confirm
-                </button>
-                <button
-                  onClick={handleClosePopup}
-                  className="cancel-btn"
-                  style={{
-                    backgroundColor: '#ddd',
-                    color: '#333',
-                    border: 'none',
-                    padding: '0.5rem 1.5rem',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          {message && (
-            <div
-              className={`message ${message.includes('Error') ? 'error' : 'success'}`}
-              style={{
-                padding: '1rem',
-                margin: '1rem 0',
-                borderRadius: '4px',
-                backgroundColor: message.includes('Error') ? '#ffebee' : '#e8f5e9',
-                color: message.includes('Error') ? '#c62828' : '#2e7d32',
+                width: '90%',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               }}
             >
-              {message}
+              <h2>Confirm Booking</h2>
+              <p>
+                Date: {selectedSlot.date}
+                <br />
+                Time: {selectedSlot.startTime} - {selectedSlot.endTime}
+              </p>
+              {popupMessage && (
+                <p style={{ color: popupMessage.includes('success') ? 'green' : 'red' }}>
+                  {popupMessage}
+                </p>
+              )}
+              <button
+                onClick={handleConfirmBooking}
+                style={{
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginRight: '1rem',
+                }}
+              >
+                Confirm
+              </button>
+              <button
+                onClick={handleClosePopup}
+                style={{
+                  backgroundColor: '#f44336',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
             </div>
-          )}
-        </>
-      )}
-     </div>
-    </> 
+          </div>
+        )}
+
+        {message && (
+          <div
+            style={{
+              color: 'red',
+              marginTop: '1rem',
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}
+          >
+            {message}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
