@@ -33,6 +33,24 @@ export const getAllUsers = async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   };
+export const getAllClients = async (req,res) =>{
+  try{
+    const clients = await User.getClient();
+    res.status(200).json(clients)
+  }catch(err)
+  {
+    res.status(500).json({error: err.message})
+  }
+};
+export const getAllFreelancers = async (req,res) =>{
+  try{
+    const clients = await User.getFreelancer();
+    res.status(200).json(clients)
+  }catch(err)
+  {
+    res.status(500).json({error: err.message})
+  }
+};
 export const getUserById = async (req, res) => {
   const userId = req.user.id; 
     try {

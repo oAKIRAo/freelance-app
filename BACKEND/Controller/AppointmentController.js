@@ -64,7 +64,79 @@ export const createAppointment = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+//Update an appointment 
+export const updateAppointment = async (req, res) => {
+    try {
+        const appointment_id = req.params.id;
+        const updates = req.body;
 
+        // Fetch existing appointment
+        const existing = await Appointment.getById(appointment_id);
+        if (!existing) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+
+        const freelancer_id = existing.freelancer_id;
+        const appointment_date = updates.appointment_date || existing.appointment_date;
+        const start_time = updates.start_time || existing.start_time;
+        const end_time = updates.end_time || existing.end_time;
+
+        // Validate time fields if any are being updated
+        if (updates.start_time || updates.end_time || updates.appointment_date) {
+            const dayOfWeek = new Date(appointment_date).toLocaleDateString('en-US', { weekday: 'long' });
+            const planning = await PlanningFreelance.getPlanningByDay(freelancer_id, dayOfWeek);
+
+            if (!planning || planning.length === 0) {
+                return res.status(400).json({ message: 'Freelancer is not available on this day' });
+            }
+
+            const requestedStart = timeToMinutes(start_time);
+            const requestedEnd = timeToMinutes(end_time);
+
+            const isWithinAvailability = planning.some(slot => {
+                const slotStart = timeToMinutes(slot.start_time);
+                const slotEnd = timeToMinutes(slot.end_time);
+                return requestedStart >= slotStart && requestedEnd <= slotEnd;
+            });
+
+            if (!isWithinAvailability) {
+                return res.status(400).json({ message: 'Appointment time must respect freelancer availability' });
+            }
+
+            const existingAppointments = await Appointment.getByFreelancerAndDate(freelancer_id, appointment_date);
+            const hasOverlap = existingAppointments.some(app => {
+                if (app.id === parseInt(appointment_id)) return false; // ignore self
+                const existingStart = timeToMinutes(app.start_time);
+                const existingEnd = timeToMinutes(app.end_time);
+                return requestedStart < existingEnd && existingStart < requestedEnd;
+            });
+
+            if (hasOverlap) {
+                return res.status(400).json({ message: 'Appointment time overlaps with another appointment' });
+            }
+        }
+
+        const result = await Appointment.updateById(appointment_id, updates);
+        return res.status(200).json({ message: 'Appointment updated', result });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+//Remove an appointment 
+export const DeleteAppointment = async (req,res)=>{
+    try{
+        const Appointment_id = req.params.id;
+        const result = await Appointment.deleteById(Appointment_id)
+        return res.status(200).json({message: 'Appointment deleted',result})
+
+    }catch(err)
+    {
+        res.status(500).json({error: err.message})
+    }
+}
+// to cancel an appointment
 export const CancelAppointment = async (req, res) => {
     try {
         const appointmentId = req.params.id;
@@ -80,7 +152,7 @@ export const CancelAppointment = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
-
+//to complete an appointment
 export const CompleteAppointment = async (req, res) => {
     try {
         const appointmentId = req.params.id;
@@ -96,6 +168,7 @@ export const CompleteAppointment = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+//to show all appointemnts that a freelancer has
 export const getAllAppointmentsByFreelancer = async (req, res) => {
     try {
         const freelancerId = req.user.id;
@@ -123,6 +196,7 @@ export const getAllAppointmentsByFreelancer = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+//to show all appointemnts that a freelancer has
 export const getAllApointementsByClient = async (req, res) => {
     try {
          const client_id = req.user.id;
@@ -146,8 +220,15 @@ export const getAllApointementsByClient = async (req, res) => {
         });
         const freelancers = await Promise.all(freelancerPromises);
         res.status(200).json(freelancers);
-        
-
     }catch(err) {
         res.status(500).json({ error: err.message });
     }};
+// to display the number of each status 
+export  const GetStatusCount = async (req,res) =>{
+    try{
+        const result = await Appointment.CountAppointmentByStatus()
+        res.status(200).json(result)
+    }catch(err){
+        res.status(500).json({error : err.message})
+    }
+}

@@ -165,7 +165,18 @@ const Appointment = {
         console.error(error);
         throw error;
     }
-}
+},
+// count appointment by status
+   CountAppointmentByStatus : async () =>{
+    try{
+        const [rows] = await db.promise().query(' SELECT status ,COUNT(*) as count FROM appointments GROUP BY status');
+        return rows;
+
+    }catch(error){ 
+        console.error(error);
+        throw error;
+    }
+   }
 
 };
   

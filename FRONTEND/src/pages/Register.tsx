@@ -111,6 +111,7 @@ const Register: React.FC = () => {
               id="email"
               name="email"
               type="email"
+              autoComplete='new-email'
               value={form.email}
               onChange={handleChange}
               required
@@ -123,6 +124,7 @@ const Register: React.FC = () => {
                 size="lg"
                 id="password"
                 name="password"
+                autoComplete='new-password'
                 type={showPassword ? 'text' : 'password'}
                 value={form.password}
                 onChange={handleChange}

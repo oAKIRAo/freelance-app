@@ -22,7 +22,27 @@ const User = {
       throw err;
     }
   },
-  //ReserPassword
+  //Afficher tous les clients
+  getClient : async () => {
+    try{
+      const [rows] = await db.promise().query('SELECT * FROM users WHERE role ="client"');
+      return rows;
+    }
+    catch(err){
+      throw err;
+    }
+  },
+  //Afficher tous les freelancers 
+    getFreelancer : async () => {
+    try{
+      const [rows] = await db.promise().query('SELECT * FROM users WHERE role ="freelancer"');
+      return rows;
+    }
+    catch(err){
+      throw err;
+    }
+  },
+  //ResetPassword
   resetPassword: async (email, newPassword) => {
     try {
       const saltRounds = 10;

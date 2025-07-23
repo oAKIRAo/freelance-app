@@ -26,12 +26,10 @@ function AvailabilityForm() {
   const [calendarView, setCalendarView] = useState<string>('dayGridWeek');
   const navigate = useNavigate();
 
-  // Auth states
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
   const token = localStorage.getItem('token');
 
-  // Popup state
   const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
@@ -44,7 +42,7 @@ function AvailabilityForm() {
     }
     try {
       const decoded = decodeToken(token);
-      if (decoded?.role !== 'client') {  // Adjust the role check as needed
+      if (decoded?.role !== 'client') {
         setAccessDenied(true);
       }
     } catch {
@@ -54,7 +52,6 @@ function AvailabilityForm() {
     }
   }, []);
 
-  // Helper to get current week's date range
   const getDateRange = () => {
     const today = new Date();
     const endDate = new Date();
@@ -69,46 +66,37 @@ function AvailabilityForm() {
 
   const [dateRange, setDateRange] = useState(getDateRange());
 
-  const mapToCalendarEvents = (slots: AvailabilitySlot[], calendarView: string): EventInput[] => {
-    if (calendarView === 'dayGridMonth') {
-      const groupedByDate = slots.reduce<Record<string, AvailabilitySlot[]>>((acc, slot) => {
-        if (!acc[slot.date]) acc[slot.date] = [];
-        acc[slot.date].push(slot);
-        return acc;
-      }, {});
-
-      return Object.keys(groupedByDate).map(date => ({
-        title: 'Available',
-        start: `${date}T00:00:00`,
-        end: `${date}T23:59:59`,
-        allDay: true,
-        backgroundColor: '#4CAF50',
-        borderColor: '#4CAF50',
-      }));
-    } else {
-      return slots.map((slot) => ({
-        title: 'Available',
-        start: `${slot.date}T${slot.startTime || '00:00'}:00`,
-        end: `${slot.date}T${slot.endTime || '23:59'}:00`,
-        allDay: !slot.startTime || !slot.endTime,
-        backgroundColor: '#4CAF50',
-        borderColor: '#4CAF50',
-      }));
-    }
+  // Helper function to format time to 12-hour format
+  const formatTimeTo12Hour = (time: string): string => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'pm' : 'am';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}${minutes !== '00' ? ':' + minutes : ''}${ampm}`;
   };
 
-  // Update dateRange at midnight
+  const mapToCalendarEvents = (slots: AvailabilitySlot[], _calendarView: string): EventInput[] => {
+    return slots.map((slot) => {
+      const startTime = slot.startTime || '00:00';
+      const endTime = slot.endTime || '23:59';
+      
+
+
+      return {
+        title: `Available`,
+        start: `${slot.date}T${startTime}:00`,
+        end: `${slot.date}T${endTime}:00`,
+        allDay: false,
+        backgroundColor: '#4CAF50',
+        borderColor: '#4CAF50',
+      };
+    });
+  };
+
   useEffect(() => {
     const updateRangeAtMidnight = () => {
       const now = new Date();
-      const midnight = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-        0,
-        0,
-        0
-      );
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
       const msUntilMidnight = midnight.getTime() - now.getTime();
 
       const timer = setTimeout(() => {
@@ -122,7 +110,6 @@ function AvailabilityForm() {
     updateRangeAtMidnight();
   }, []);
 
-  // Fetch availability after auth check passes
   useEffect(() => {
     async function fetchAvailability() {
       if (!freelancerId || !token || accessDenied || checkingAuth) return;
@@ -197,7 +184,6 @@ function AvailabilityForm() {
       setPopupMessage('Availability successfully booked!');
       setIsPopupOpen(false);
 
-      // Refresh availabilities after booking
       const refreshRes = await axios.get<AvailabilitySlot[]>(
         `${import.meta.env.VITE_API_URL}/api/availability/${freelancerId}/available-slots`,
         {
@@ -237,26 +223,8 @@ function AvailabilityForm() {
   return (
     <>
       <Navbar />
-      <div
-        className="availability-container"
-        style={{
-          maxWidth: '900px',
-          margin: '2rem auto',
-          padding: '1rem',
-          backgroundColor: '#f7fafc',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        }}
-      >
-        <div
-          className="calendar-container"
-          style={{
-            maxHeight: '650px',
-            overflowY: 'auto',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-          }}
-        >
+      <div className="availability-container">
+        <div className="calendar-container">
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView={calendarView}
@@ -273,79 +241,33 @@ function AvailabilityForm() {
             selectable={true}
             weekends={true}
             dayMaxEvents={true}
-            eventTimeFormat={
-              calendarView === 'dayGridMonth'
-                ? undefined
-                : { hour: 'numeric', minute: '2-digit', meridiem: true }
-            }
+            eventTimeFormat={{
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            }}
             datesSet={(info) => setCalendarView(info.view.type)}
           />
         </div>
 
-        {/* Booking Popup */}
         {isPopupOpen && selectedSlot && (
-          <div
-            className="popup-overlay"
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 1000,
-            }}
-          >
-            <div
-              className="popup-content"
-              style={{
-                backgroundColor: 'white',
-                padding: '2rem',
-                borderRadius: '8px',
-                maxWidth: '400px',
-                width: '90%',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              }}
-            >
+          <div className="popup-overlay">
+            <div className="popup-content">
               <h2>Confirm Booking</h2>
               <p>
                 Date: {selectedSlot.date}
                 <br />
-                Time: {selectedSlot.startTime} - {selectedSlot.endTime}
+                Time: {formatTimeTo12Hour(selectedSlot.startTime || '00:00')} - {formatTimeTo12Hour(selectedSlot.endTime || '23:59')}
               </p>
               {popupMessage && (
                 <p style={{ color: popupMessage.includes('success') ? 'green' : 'red' }}>
                   {popupMessage}
                 </p>
               )}
-              <button
-                onClick={handleConfirmBooking}
-                style={{
-                  backgroundColor: '#4CAF50',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  marginRight: '1rem',
-                }}
-              >
+              <button className="confirm-btn" onClick={handleConfirmBooking}>
                 Confirm
               </button>
-              <button
-                onClick={handleClosePopup}
-                style={{
-                  backgroundColor: '#f44336',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
+              <button className="cancel-btn" onClick={handleClosePopup}>
                 Cancel
               </button>
             </div>
@@ -353,14 +275,7 @@ function AvailabilityForm() {
         )}
 
         {message && (
-          <div
-            style={{
-              color: 'red',
-              marginTop: '1rem',
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}
-          >
+          <div style={{ color: 'red', marginTop: '1rem', fontWeight: 'bold', textAlign: 'center' }}>
             {message}
           </div>
         )}

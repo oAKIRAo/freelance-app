@@ -1,6 +1,7 @@
 import express from 'express';
-import{createAppointment} from '../Controller/AppointmentController.js';
+import{createAppointment, GetStatusCount} from '../Controller/AppointmentController.js';
 import authMiddleware from '../Middleware/authMiddleware.js';
+import adminMiddleware from '../Middleware/AdminMiddleware.js'
 import ClientMiddleware from '../Middleware/ClientMiddleware.js';
 import FreelancerMiddleware from '../Middleware/FreelancerMiddlware.js';
 import { CancelAppointment , CompleteAppointment} from '../Controller/AppointmentController.js';
@@ -11,5 +12,5 @@ router.patch('/:id/cancel', authMiddleware, CancelAppointment);
 router.patch('/:id/complete',authMiddleware,CompleteAppointment);
 router.get('/freelancer/appointments', authMiddleware, FreelancerMiddleware,getAllAppointmentsByFreelancer);
 router.get('/client/appointments', authMiddleware,ClientMiddleware, getAllApointementsByClient);
-
+router.get('/status/count',authMiddleware,adminMiddleware,GetStatusCount)
 export default router;

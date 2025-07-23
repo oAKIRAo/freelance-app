@@ -83,6 +83,7 @@ const Login: React.FC = () => {
               id="email"
               name="email"
               type="email"
+              autoComplete='new-email'
               value={form.email}
               onChange={handleChange}
               required
@@ -95,6 +96,7 @@ const Login: React.FC = () => {
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
+                autoComplete='new-password'
                 value={form.password}
                 onChange={handleChange}
                 required
