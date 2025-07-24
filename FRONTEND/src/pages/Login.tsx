@@ -16,6 +16,7 @@ interface LoginResponse {
     role: string;
   };
   error?: string;
+  message?: string;
 }
 
 const Login: React.FC = () => {
@@ -52,7 +53,7 @@ const Login: React.FC = () => {
           navigate('/');
         }
       } else {
-        setMessage(data.error || 'Login failed');
+        setMessage(data.message||data.error || 'Login failed');
       }
     } catch (err) {
       console.error(err);

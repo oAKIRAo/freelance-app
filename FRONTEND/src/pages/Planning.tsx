@@ -7,7 +7,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import '../styles/AvailabilityForm.css';
 import { decodeToken } from '@/lib/decodeToken'; 
-import AccessDenied from '@/components/AccesDenied'; // Adjust path as needed
+import AccessDenied from '@/components/AccesDenied';
 
 interface Planning {
   id: number;
@@ -21,11 +21,9 @@ function getNextDateOfWeek(dayName: string) {
   const today = new Date();
   const dayIndex = daysOfWeek.indexOf(dayName);
   if (dayIndex === -1) return null;
-
   const diff = (dayIndex + 7 - today.getDay()) % 7;
   const nextDate = new Date(today);
   nextDate.setDate(today.getDate() + diff);
-  
   return nextDate.toISOString().split('T')[0];
 }
 
@@ -34,10 +32,10 @@ const FreelancerPlanning = () => {
   const [dayOfWeek, setDayOfWeek] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showModal, setShowModal] = useState(false);
-  
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
 
@@ -67,7 +65,6 @@ const FreelancerPlanning = () => {
         setAccessDenied(true);
         return;
       }
-
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/planning/getallplannings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -86,30 +83,67 @@ const FreelancerPlanning = () => {
         setAccessDenied(true);
         return;
       }
-
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/planning/createplanning`,
-        {
-          day_of_week: dayOfWeek,
-          start_time: startTime,
-          end_time: endTime,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      
-      console.log('Planning added successfully!');
-      setError('');
-      setDayOfWeek('');
-      setStartTime('');
-      setEndTime('');
-      setShowModal(false);
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/planning/createplanning`, {
+        day_of_week: dayOfWeek,
+        start_time: startTime,
+        end_time: endTime,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSuccess('Planning added successfully!');
+      resetForm();
       fetchPlannings();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to add planning.');
       setSuccess('');
     }
+  };
+
+  const handleUpdatePlanning = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingId) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(`${import.meta.env.VITE_API_URL}/api/planning/updateplanning/${editingId}`, {
+        day_of_week: dayOfWeek,
+        start_time: startTime,
+        end_time: endTime,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSuccess('Planning updated successfully!');
+      resetForm();
+      fetchPlannings();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to update planning.');
+      setSuccess('');
+    }
+  };
+
+  const handleDeletePlanning = async () => {
+    if (!editingId) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/planning/deleteplanning/${editingId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSuccess('Planning deleted successfully!');
+      resetForm();
+      fetchPlannings();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to delete planning.');
+      setSuccess('');
+    }
+  };
+
+  const resetForm = () => {
+    setDayOfWeek('');
+    setStartTime('');
+    setEndTime('');
+    setEditingId(null);
+    setShowModal(false);
+    setError('');
+    setSuccess('');
   };
 
   useEffect(() => {
@@ -118,35 +152,29 @@ const FreelancerPlanning = () => {
     }
   }, [accessDenied, checkingAuth]);
 
-  const events = plannings
-    .map(plan => {
-      const date = getNextDateOfWeek(plan.day_of_week);
-      if (!date) return undefined;
-      return {
-        title: `Available`,
-        start: `${date}T${plan.start_time}`,
-        end: `${date}T${plan.end_time}`,
-      };
-    })
-    .filter((event): event is { title: string; start: string; end: string } => event !== undefined);
+  const events = plannings.map(plan => {
+    const date = getNextDateOfWeek(plan.day_of_week);
+    if (!date) return undefined;
+    return {
+      id: plan.id.toString(),
+      title: `Available`,
+      start: `${date}T${plan.start_time}`,
+      end: `${date}T${plan.end_time}`,
+      extendedProps: {
+        planningId: plan.id,
+        dayOfWeek: plan.day_of_week,
+        startTime: plan.start_time,
+        endTime: plan.end_time
+      }
+    };
+  }).filter((e): e is any => e !== undefined);
 
   if (checkingAuth) {
-    return (
-      <>
-        <Navbar />
-        <div className="availability-container p-8">
-          <p>Loading...</p>
-        </div>
-      </>
-    );
+    return (<><Navbar /><div className="availability-container p-8"><p>Loading...</p></div></>);
   }
 
   if (accessDenied) {
-    return (
-      <>
-        <AccessDenied />
-      </>
-    );
+    return (<><AccessDenied /></>);
   }
 
   return (
@@ -168,77 +196,88 @@ const FreelancerPlanning = () => {
               center: 'title',
               right: 'dayGridMonth,timeGridWeek,timeGridDay',
             }}
-            eventTimeFormat={{
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true,
-            }}
+            eventTimeFormat={{ hour: 'numeric', minute: '2-digit', hour12: true }}
             eventDisplay="list-item"
             height="auto"
             allDaySlot={false}
             slotMinTime="07:00:00"
             slotMaxTime="22:00:00"
+            eventClick={(info) => {
+              console.log('Event clicked:', info.event.extendedProps);
+              
+              // Get the planning data from the event's extended props
+              const planningId = info.event.extendedProps.planningId;
+              const dayOfWeek = info.event.extendedProps.dayOfWeek;
+              const startTime = info.event.extendedProps.startTime;
+              const endTime = info.event.extendedProps.endTime;
+              
+              // Set the form data for editing
+              setEditingId(planningId);
+              setDayOfWeek(dayOfWeek);
+              setStartTime(startTime);
+              setEndTime(endTime);
+              setShowModal(true);
+              
+              console.log('Editing ID set to:', planningId);
+            }}
           />
         </div>
 
-        <button onClick={() => setShowModal(true)} className="submit-btn">
-          Add Planning
-        </button>
+        <button onClick={() => setShowModal(true)} className="submit-btn">Add Planning</button>
 
         {showModal && (
           <div className="popup-overlay">
             <div className="popup-content">
-              <h3>Add New Planning</h3>
-              <form onSubmit={handleCreatePlanning} className="availability-form">
+              <h3>{editingId ? 'Edit Planning' : 'Add New Planning'}</h3>
+              <form onSubmit={editingId ? handleUpdatePlanning : handleCreatePlanning} className="availability-form">
                 <div className="form-group">
                   <label>Day of week</label>
-                  <select
-                    value={dayOfWeek}
-                    onChange={(e) => setDayOfWeek(e.target.value)}
-                    required
-                  >
+                  <select value={dayOfWeek} onChange={(e) => setDayOfWeek(e.target.value)} required>
                     <option value="">Select a day</option>
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
+                    {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => (
+                      <option key={day} value={day}>{day}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div className="form-group">
                   <label>Start Time</label>
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    required
-                  />
+                  <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
                 </div>
 
                 <div className="form-group">
                   <label>End Time</label>
-                  <input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    required
-                  />
+                  <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
                 </div>
 
-                <button type="submit" className="submit-btn">
-                  Add Planning
-                </button>
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setShowModal(false)}
-                  style={{ marginLeft: '10px' }}
-                >
-                  Cancel
-                </button>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <button type="submit" className="confirm-btn">
+                    {editingId ? 'Update Planning' : 'Add Planning'}
+                  </button>
+                  
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={resetForm}
+                  >
+                    Cancel
+                  </button>
+
+                  {editingId && (
+                    <button
+                      type="button"
+                      className="cancel-btn"
+                      style={{ 
+                        backgroundColor: '#dc2626', 
+                        color: 'white',
+                        border: 'none'
+                      }}
+                      onClick={handleDeletePlanning}
+                    >
+                      Delete Planning
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
           </div>

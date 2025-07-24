@@ -23,7 +23,7 @@ function AvailabilityForm() {
   const [, setAvailabilities] = useState<AvailabilitySlot[]>([]);
   const [events, setEvents] = useState<EventInput[]>([]);
   const [message, setMessage] = useState<string>('');
-  const [calendarView, setCalendarView] = useState<string>('dayGridWeek');
+  const [calendarView, setCalendarView] = useState<string>('dayGridMonth');
   const navigate = useNavigate();
 
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -227,7 +227,7 @@ function AvailabilityForm() {
         <div className="calendar-container">
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView={calendarView}
+            initialView="dayGridMonth"
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',

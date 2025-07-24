@@ -50,7 +50,7 @@ export const createPlanning = async(req,res) => {
 export const deletePlanningById = async (req, res) => {
   try {
     const result = await PlanningFreelance.deleteById(req.params.id);
-    res.status(200).json({ message: 'Planning deleted', result });
+    res.status(200).json({ message: 'time deleted', result });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -58,15 +58,14 @@ export const deletePlanningById = async (req, res) => {
 // Update a planning by ID
 export const updatePlanningById = async (req, res) => {
   try{
-    const { id } = req.user.id;
     const fieldsToUpdate = req.body;
 
     if (!fieldsToUpdate || Object.keys(fieldsToUpdate).length === 0) {
       return res.status(400).json({ message: 'No fields to update' });
     }
 
-    const result = await PlanningFreelance.updateById(id, fieldsToUpdate);
-    res.status(200).json({ message: 'Planning updated', result });
+    const result = await PlanningFreelance.updateById(req.params.id, fieldsToUpdate);
+    res.status(200).json({ message: 'Availability updated', result });
   }catch (err) {
     res.status(500).json({ error: err.message });
   }

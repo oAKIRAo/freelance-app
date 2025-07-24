@@ -17,12 +17,12 @@
 }
 
 .calendar-container {
-  min-height: 500px; /* Reduced from 600px */
+  min-height: 500px;
   margin: 1rem 0;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* FullCalendar global styles */
@@ -31,23 +31,29 @@
   background-color: #f9fbfc;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-  padding: 8px; /* Reduced padding */
-  font-size: 0.85rem; /* Smaller text */
+  padding: 8px;
+  font-size: 0.85rem;
 }
 
-/* Header toolbar */
+/* Toolbar */
 .fc-header-toolbar {
-  margin-bottom: 8px; /* Reduced spacing */
+  margin-bottom: 8px;
 }
 
-/* Buttons */
+.fc-toolbar-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+/* Navigation buttons */
 .fc-button {
   background-color: #4a90e2;
   border: none;
   color: white;
   font-weight: 500;
   border-radius: 4px;
-  padding: 4px 10px; /* Reduced padding */
+  padding: 4px 10px;
   margin-right: 6px;
   font-size: 0.85rem;
   cursor: pointer;
@@ -55,49 +61,95 @@
 }
 
 .fc-button:hover {
-  background-color: #357ABD;
+  background-color: #357abd;
 }
 
-/* Toolbar title */
-.fc-toolbar-title {
-  font-size: 1.1rem; /* Smaller title */
-  font-weight: 600;
-}
-
-/* Month header days */
+/* Day labels (Mon, Tue...) */
 .fc-col-header-cell-cushion {
-  font-weight: 500;
-  color: #333;
-  font-size: 0.8rem;
-  padding: 2px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  padding: 6px 0;
+  background-color: #f0f9ff;
+  border-bottom: 1px solid #d0e8f2;
 }
 
-/* Compact event style */
+/* Day number in cell */
+.fc-daygrid-day-number {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  padding: 4px;
+  text-align: right;
+  margin: 4px;
+  display: block;
+}
+
+/* Date cells */
+.fc-daygrid-day {
+  background-color: #ffffff;
+  transition: background 0.3s;
+}
+
+.fc-daygrid-day:hover {
+  background-color: #eafaff;
+}
+
+/* Events */
 .fc-event {
-  background-color: #3cb371;
-  border: none;
-  color: white;
-  padding: 1px 4px; /* Smaller padding */
-  border-radius: 4px;
+  background-color: #10b981;
+  border-radius: 6px;
+  padding: 3px 6px;
   font-size: 0.8rem;
   font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: white;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: background-color 0.2s ease;
 }
 
 .fc-event:hover {
-  background-color: #2e8b57;
+  background-color: #059669;
 }
 
-/* Reduce spacing in day numbers */
-.fc-daygrid-day-number {
-  font-size: 0.75rem;
-  padding: 2px;
+.fc-event-title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
 }
 
-/* Popup and buttons unchanged below... */
+/* Today highlight */
+.fc-day-today {
+  background-color: #fefce8 !important;
+  border: 1px solid #facc15 !important;
+}
+
+/* Submit Button */
+.submit-btn {
+  padding: 12px 26px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1));
+  color: #111;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, transform 0.2s ease;
+  display: block;
+  margin: 0 auto;
+  max-width: 300px;
+  text-align: center;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(to right, rgba(143, 211, 244, 1), rgba(132, 250, 176, 1));
+  transform: translateY(-2px);
+}
 
 /* Modal overlay */
 .popup-overlay {
@@ -114,31 +166,79 @@
   animation: fadeIn 0.3s ease forwards;
 }
 
+/* Updated popup styling */
 .popup-content {
-  background: white;
-  border-radius: 10px;
-  width: 360px;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.95),
+    rgba(240, 255, 255, 0.9)
+  );
+  border-radius: 16px;
+  width: 400px;
   max-width: 90%;
-  padding: 30px 25px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  padding: 40px 30px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   text-align: center;
   position: relative;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  animation: slideIn 0.3s ease forwards;
+  animation: slideFadeIn 0.35s ease forwards;
   color: #222;
+  border: 2px solid rgba(132, 250, 176, 0.4);
+  overflow: hidden;
+}
+
+.popup-content::before {
+  content: "🗓️";
+  font-size: 42px;
+  display: block;
+  margin-bottom: 16px;
+  animation: bounceIn 0.4s ease;
 }
 
 .popup-content h3 {
-  margin-bottom: 15px;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
+  margin-bottom: 12px;
+  color: #2c3e50;
 }
 
 .popup-content p {
   font-size: 16px;
   margin-bottom: 25px;
+  color: #555;
 }
 
+/* Form fields */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #87cefa;
+  outline: none;
+}
+
+/* Buttons inside popup */
 .confirm-btn,
 .cancel-btn {
   padding: 12px 22px;
@@ -147,7 +247,7 @@
   border: none;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  margin: 0 10px;
+  margin: 10px 10px 0;
   min-width: 110px;
   font-weight: 700;
   font-family: inherit;
@@ -171,6 +271,7 @@
   background: #bbb;
 }
 
+/* Animations */
 @keyframes fadeIn {
   from {
     background-color: rgba(0, 0, 0, 0);
@@ -180,13 +281,27 @@
   }
 }
 
-@keyframes slideIn {
+@keyframes slideFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-30px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
   }
 }
