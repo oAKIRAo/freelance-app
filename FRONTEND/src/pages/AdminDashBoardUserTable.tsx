@@ -208,6 +208,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this appointment?')) {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/delete/${id}`, {
         method: 'DELETE',
@@ -220,7 +221,7 @@ const AdminDashboard: React.FC = () => {
     } catch (error: any) {
       setMessage(error.message);
     }
-  };
+  }};
 
   const handleLogout = () => {
     localStorage.removeItem('token');

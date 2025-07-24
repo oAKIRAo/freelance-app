@@ -1,5 +1,22 @@
 import db from '../DATABASE/Connection.js';
 const Appointment = {
+   //read all appointment
+GetAllappointment: async () => {
+  try {
+    const [rows] = await db.promise().query(`
+      SELECT 
+        appointments.*, 
+        freelancer.name AS freelancer_name,
+        client.name AS client_name
+      FROM appointments
+      JOIN users AS freelancer ON appointments.freelancer_id = freelancer.id
+      JOIN users AS client ON appointments.client_id = client.id
+    `);
+    return rows;
+  } catch (err) {
+    throw err;
+  }
+},
   // Read a  appointment by ID
     getById: async (id) => {
         try {

@@ -25,7 +25,7 @@ app.use('/api/availability', AvailabilityRoutes);
 app.use('/api/auth',AuthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/planning', PlaninngRoutes);
-app.use('/api/appointment', AppointmentRoutes);
+app.use('/api/appointment', AppointmentRoutes,AnalyticsRoutes);
 app.use('/api/admin',AnalyticsRoutes);
 app.use('/uploads/profile_pictures', express.static('uploads/profile_pictures'));
 const PORT = process.env.PORT || 3000;

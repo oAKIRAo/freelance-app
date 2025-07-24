@@ -15,7 +15,7 @@ const Sidebar: React.FC = () => {
     <div className="sidebar">
       <h2 className="title"> Admin </h2>
       <nav className="nav">
-        <a href="/analytics" className="link">
+        <a href="/admin/dashboard/analytics" className="link">
           <FaChartBar className="icon" />
           Analytics
         </a>

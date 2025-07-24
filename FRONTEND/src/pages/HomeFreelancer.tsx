@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/navbar';
 import '../styles/home.css'; 
+import Footer from '../components/Footer'
 
 const FreelancerHome = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const FreelancerHome = () => {
           Create My Planning
         </button>
       </div>
+      <Footer />
     </>
   );
 };

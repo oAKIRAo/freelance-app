@@ -1,0 +1,81 @@
+/* Summary Cards Container */
+.summary-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Individual Summary Card */
+.summary-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 1.25rem 1rem;
+  flex: 1 1 calc(25% - 1.5rem); /* 4 cards per row with spacing */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 180px;
+  height: 8.5rem;
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+}
+
+.summary-card h3 {
+  text-transform: uppercase;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.summary-card p {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+/* Icon in Summary Card */
+.summary-card-icon {
+  font-size: 2.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Pie Chart Container */
+.pie-chart-section {
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Table Container */
+.table-card {
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .summary-card {
+    flex: 1 1 calc(50% - 1.5rem); /* 2 per row on tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .summary-cards-container {
+    flex-direction: column;
+  }
+
+  .summary-card {
+    flex: 1 1 100%;
+  }
+}

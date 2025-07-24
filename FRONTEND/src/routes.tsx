@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
-import AdminDashboard from './pages/AdminDashBoard';
+import AdminDashboard from './pages/AdminDashBoardUserTable';
 import HomeClient from './pages/HomeClient';
 import AvailabilityForm from './pages/Availability';
 import SearchResults from './pages/Search';
@@ -13,6 +13,7 @@ import FreelancerHome from './pages/HomeFreelancer';
 import UpdateProfile from './pages/UpdateProfil';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
+import AdminAnalytics from './pages/AdminDashBoardAnalytics';
 
 export default function AppRoutes() {
   return (
@@ -32,6 +33,7 @@ export default function AppRoutes() {
         <Route path="/update-profile" element={<UpdateProfile />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/admin/dashboard/analytics" element = {<AdminAnalytics/>} />
       </Routes>
     </Router>
   );

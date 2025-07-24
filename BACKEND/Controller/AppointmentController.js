@@ -232,3 +232,13 @@ export  const GetStatusCount = async (req,res) =>{
         res.status(500).json({error : err.message})
     }
 }
+// to display all the appointment
+export const GetAllappointent = async (req,res) =>{
+    try{
+        const result = await Appointment.GetAllappointment()
+        res.status(200).json(result)
+    }catch(err)
+    {
+        res.status(500).json({error : err.message})
+    }
+}

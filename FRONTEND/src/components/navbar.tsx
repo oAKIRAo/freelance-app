@@ -99,7 +99,7 @@ const Navbar = () => {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link
-            to="/"
+            to=""
             className="text-2xl font-bold tracking-tight text-gray-900 hover:text-gray-700 transition duration-300"
           >
             kalender
@@ -168,7 +168,7 @@ const Navbar = () => {
                         className="block px-4 py-2 text-sm hover:bg-black hover:bg-opacity-10 transition-colors duration-150"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        Modify Profile
+                        Modify Profil
                       </Link>
                       <button
                         onClick={() => {
